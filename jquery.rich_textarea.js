@@ -1,5 +1,5 @@
 /**
-* Copyright (c) 2013 DTLink, LLC (http://www.asoftwareguy.com)
+* Copyright (c) 2013 DTLink, LLC (http://www.a-software-guy.com)
 *
 * Permission  is  hereby  granted,  free of charge, to any person
 * obtaining  a copy of this software and associated documentation
@@ -76,7 +76,7 @@ if ( typeof( ddt ) == 'undefined' )
 *
 * @see https://github.com/Yermo/rich_textarea
 *
-* @see http://asoftwareguy.com
+* @see http://a-software-guy.com
 *
 * @see http://api.jqueryui.com/jQuery.widget/
 *

@@ -28,7 +28,7 @@ Rich_TextArea is not a WYSIWYG editor. It's intended to be a replacement for a p
 
 Multiple autocomplete trigger characters can be defined simultaneously, each with it's own data-source callback so it's possible to do @mentions and #tagging and other kinds of triggers all at the same time. 
 
-These "embedded objects" are treated as atomic entities and each is tagged with a "data-value" that is used to identify the object on the server. This could be a GUID, a tag name, an ID, whatever. When clicked on, the caret is positioned before the object and the *.highlight* class is applied. ARROW keys move over the object. Pressing DELETE when the caret is positioned before the object on the same line deletes it. Backspacing over an object deletes it as. When selecting ranges using the mouse or SHIFT-ARROW, the ranges are adjusted to enclose any selected objects. (i.e. it prevents the user from selecting a range into the middle of an embedded object). Moving into an object using the UP and DOWN arrow keys also positions the caret the beginning of the object.  
+These "embedded objects" are treated as atomic entities and each is tagged with a "data-value" that is used to identify the object on the server. This could be a GUID, a tag name, an ID, whatever. When clicked on, the caret is positioned before the object and the *.highlight* class is applied. ARROW keys move over the object. Pressing DELETE when the caret is positioned before the object on the same line deletes it. Backspacing over an object deletes it as well. When selecting ranges using the mouse or SHIFT-ARROW, the ranges are adjusted to enclose any selected objects. (i.e. it prevents the user from selecting a range into the middle of an embedded object). Moving into an object using the UP and DOWN arrow keys also positions the caret the beginning of the object.  
 
 
 A public method is available to generate a text version of the contents of the editable div. "embedded objects" are encoded using the 'data-value' and are represented in the text using the notation *[o={data-value}]*. This can then be passed back to the server. It's up to the server to parse this and do something useful with it.
@@ -50,7 +50,7 @@ Internet Explorer browsers earlier than IE9 are not supported.
 
 Opera has not been tested. 
 
-It should be possible to make this code with any browser that supports DOM selections and the contenteditable attribute, although depending on the details of the browser this may prove to be challenging. There is apparently no standard for how contenteditable should be implemented and each browser makes radically different design choices.
+It should be possible to make this code work with any browser that supports DOM selections and the contenteditable attribute, although depending on the details of the browser this may prove to be challenging. There is apparently no standard for how contenteditable should be implemented and each browser makes radically different design choices.
 
 
 ## Dependencies
@@ -133,7 +133,7 @@ The value is made up of two parts.
 1. *value* represents an id, guid or other value to send back to the server. 
 2. *content* represents the html markup that should be inserted into the editable div when this item is selected from the autocomplete menu.
  
-You may define multiple trigger characters each with their own callback function. In this way you can simultaneously have @user mentions along with #tags if you wanted or define other trigger characters for other purposes. See the demo for an example of how this works. 
+You may define multiple trigger characters each with their own callback function. In this way you can simultaneously have @user mentions along with #tags if you wanted or define other trigger characters for other purposes. See the [demo](http://a-software-guy.com/demos/rich_textarea/index.php) for an example of how this works. 
 
 
 ## Hightlighting
@@ -157,7 +157,7 @@ alert( $( '#RICH_TEXTAREA' ).rich_textarea( 'getTextContent' ) );
 
 ### Status of the Code
 
-This is a first ALPHA release. I have tested this in Chrome, FireFox and MSIE 9 and it seems to work. I will test in Safari soon.
+This is a first *ALPHA* release, codenamed 'IS THAT ALL?". I have tested this in Chrome, FireFox and MSIE 9 and it seems to work. I will test in Safari soon.
 
 All the effort has gone into simply making the beast work more or less. No effort has been put into efficiency or packaging at this time.
 
@@ -172,18 +172,18 @@ Comments, suggestions and criticisms will be graciously received. I suspect I am
 
 ### Some Comments on the Code
 
-Depending on the browser, it turns out that it's often [impossible to select particular positions](http://a-software-guy.com/2013/01/you-cant-select-that-webkit-browser-selections-and-ranges-in-chrome-and-safari/). For example, in Chrome it's not possible to select the space before a SPAN if the SPAN is the first thing in the DIV. This means that without some serious handstands the user cannot move the caret before an object they've inserted, which would be No Good(tm).
+Depending on the browser, it turns out that it's often [impossible to select particular positions](http://a-software-guy.com/2013/01/you-cant-select-that-webkit-browser-selections-and-ranges-in-chrome-and-safari/). For example, in Chrome it's not possible to select the space before a SPAN if the SPAN is the first thing in the contenteditable DIV. This means that the user cannot move the caret before an object they've inserted at the beginning of the DIV, which would be No Good(tm). The same is true if the user puts two objects right next to one another. Or tries to get "behind" the last object in the DIV. Etc. Etc.
 Moving the caret has it's own issues in FireFox.
 
 Then there is the issue that the three major browsers [all do different things when ENTER is pressed](http://a-software-guy.com/2013/01/a-summary-of-markup-changes-in-contenteditable-divs-in-webkitfirefox-and-msie/).
 
-As a result, the majority of work involved in developing this plugin has involved a tremendous amount of trial and error. The code reflects this trial and error. There are prodigious trace messages which can be turned on by calling *ddt.on()*. 
+As a result, developing this plugin has involved a tremendous amount of trial and error as I tried to figure out what the browsers were doing in all these various circumstances. The code reflects this trial and error. There are prodigious trace messages which can be turned on by calling *ddt.on()*. 
 
-Despite not being able to select, for instance, the space between a SPAN and the beginning of a DIV, one can INSERT content there. It turns out that textnodes are always selectable in all major browsers so the approach I've chosen is to insert Unicode Zero Width Space characters (u+200B) in those areas that are typically not selectable. As long as there's one of these invisible characters present, the user can move the caret there. Thus the trick is to make sure that textnodes wrap objects in all cases regardless of how the users happens to edit the content. (HINT: It can get challenging when you consider inserting an object, deleting it, breaking a line then merging it back together again using the BACSPACE key, etc.)
+Despite not being able to select, for instance, the space between a SPAN and the beginning of a DIV, one can INSERT content there. It turns out that textnodes are always selectable in all major browsers so the approach I've chosen is to insert Unicode Zero Width Space characters (u+200B) in those areas that are typically not selectable. These text nodes take up no space on the screen and are as a result invisible to the user. As long as there's one of these invisible characters present, the user can move the caret there. Thus the trick is to make sure that textnodes wrap objects in all cases regardless of how the users happens to edit the content. (HINT: It can get challenging when you consider inserting an object, deleting it, breaking a line then merging it back together again using the BACSPACE key, etc.)
 
 Unfortunately, when moving the cursor using the arrow keys (or BACKSPACE), moving over zero width space characters does consume a keystroke, which means the user presses a key and nothing happens. Not Good(tm).
 
-To address this, I intercept key presses and look to see if the caret is next to any zero width character and skip over them accordingly. The same is done for BACKSPACE. It gets challenging when you consider that you might reach the end of a container, like a DIV in Chrome, and have to step out of that container, into an adjacent one and continue skipping across blank character. Then you have to also take into account that WebKit browsers do not merge adjacent textnodes, so you may have any number of textnodes with any number of zero width characters.
+To address this, I intercept key presses and look to see if the caret is next to any zero width characters and skip over them accordingly. The same is done for BACKSPACE. It gets challenging when you consider that you might reach the end of a container, like a DIV in Chrome, and have to step out of that container, into an adjacent one and continue skipping across blank character. Then you have to also take into account that WebKit browsers do not merge adjacent textnodes, so you may have any number of textnodes with any number of zero width characters.
 
 What has proven particularly challenging is getting cursor movement to behave as expected in all cases when one considers how the various browsers format content and what their default key handler behavior is. There are still some cases where the cursor jumps one space too many or the code doesn't recognize that it's next to an object (and should highlight it).
 

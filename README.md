@@ -1,7 +1,7 @@
 rich_textarea: a jQuery UI plugin replacement for a TEXTAREA.
 =============
 
-Rich-TextArea is a contenteditable TEXTAREA replacement widget featuring extendable @mention and #tag autocompletions in addition to rich object support.
+Rich_TextArea is a contenteditable TEXTAREA replacement widget featuring extendable @mention and #tag autocompletions in addition to rich object support.
 
 [Homepage](http://a-software-guy.com/rich_textarea/)
 
@@ -10,43 +10,67 @@ This is the first public release and is thus version alpha 1.
 
 ## Screenshot
 
-![Screenshot](http://a-software-guy.com/demo/rich_textarea/images/rich_textarea_screenshot.png)
+![Screenshot](http://a-software-guy.com/demos/rich_textarea/images/rich_textarea_screenshot.png)
 
 
 ## Demo
 
-Check the [index.php](http://a-software-guy.com/demos/rich_textarea/index.php) for a demo.
+See [this demo](http://a-software-guy.com/demos/rich_textarea/index.php).
 
 
 ## Overview
 
-Rich-TextArea is not a WYSIWYG editor. It's intended to be a replacement for a plain TEXTAREA with the additional feature of allowing you to insert artibrary markup to represent "embedded objects" such as @mentions, #tags, images, links, etc. 
+Rich_TextArea is not a WYSIWYG editor. It's intended to be a replacement for a plain TEXTAREA with additional feature including:
+
+1. dropdown autocomplete support based on definable trigger characters such as @mentions, #tags, etc.
+2. insertion arbitrary markup to represent "embedded objects", such as images, links, etc. which are treated as single entities from the point of view of cursor movement and mouse selections. 
+3. generation of a plain text representation of the editable area.
+
 Multiple autocomplete trigger characters can be defined simultaneously, each with it's own data-source callback so it's possible to do @mentions and #tagging and other kinds of triggers all at the same time. 
 
-
-These "embedded objects" are treated as atomic entities and each is tagged with a "data-value" that is used to identify the object on the server. This could be a GUID, a tag name, an ID, whatever. When clicked on, the caret is positioned before the object and the .highlight class is applied. ARROW keys move over the object. Backspacing over an object removes it. 
+These "embedded objects" are treated as atomic entities and each is tagged with a "data-value" that is used to identify the object on the server. This could be a GUID, a tag name, an ID, whatever. When clicked on, the caret is positioned before the object and the *.highlight* class is applied. ARROW keys move over the object. Backspacing over an object removes it. 
 
 
 A public method is available to generate a text version of the contents of the editable div. "embedded objects" are encoded using the 'data-value' and are represented in the text using the notation *[o={data-value}]*. This can then be passed back to the server. It's up to the server to parse this and do something useful with it.
 
 
-## Usage
+## Browser Support
 
-Rich-TextArea depends on 
+Rich_TextArea has been tested on:
+
+1. FireFox 12 & 17
+2. IE 9
+3. Chrome 17
+
+Later versions of these browsers should also work.
+
+Safari is next on the list for testing. I suspect it will "just work".
+
+Internet Explorer browsers earlier than IE9 are not supported. 
+
+Opera has not been tested. 
+
+It should be possible to make this code with with any browser that supports DOM selections and the contenteditable attribute, although depending on the details of the browser this may be challenging.
+
+
+## Dependencies
+
+Rich_TextArea depends on 
 
 1. [jquery](http://jquery.com)
 2. [jquery-ui](http://ui.jquery.com)
 3. [Scott Gonazalez' autocomplete html extension](https://github.com/scottgonzalez/jquery-ui-extensions/blob/master/autocomplete/jquery.ui.autocomplete.html.js)
 3. [Tim Down's rangey](http://code.google.com/p/rangy/)
 
-and has been tested with jquery-1.8.2, jquery-ui-1.9.0 and rangy-1.3alpha. 
+and has been tested with jquery-1.8.2, jquery-ui-1.9.0 and rangy-1.3alpha.
 
-To use it, first pull in the jquery-ui stylesheet, then load the included debugging shim, jquery, jquery-ui, rangy-core, the included jquery-ui-autocomplete.html extension and finally jquery.rich_textarea.js
+
+### Usage
+
+To use it, first pull in the jquery-ui stylesheet, then load jquery, jquery-ui, rangy-core, the included jquery-ui-autocomplete.html extension and finally jquery.rich_textarea.js
 
 ```javascript
 <link rel="stylesheet" type="text/css" href="../jquery-1.8.2/css/smoothness/jquery-ui-1.9.0.custom.css">
-
-<script src="ddt.js" type="text/javascript"></script>
 
 <script src="../jquery-1.8.2/js/jquery-1.8.2.js" type="text/javascript"></script>
 <script src="../jquery-1.8.2/js/jquery-ui-1.9.0.custom.js" type="text/javascript"></script>
@@ -81,7 +105,7 @@ Next, create a content editable div and give it a unique id:
 <div contenteditable="true" id="rich_textarea"></div>
 ```
 
-Enabling Rich-TextArea is just a matter of calling it on the given id. Currently, it takes one argument which is an array of trigger definitions consisting of a trigger character and a callback function. 
+Enabling Rich_TextArea is just a matter of calling it on the given id. Currently, it takes one argument which is an array of trigger definitions consisting of a trigger character and a callback function. 
 
 ```javascript
 
@@ -96,7 +120,7 @@ $( '#rich_textarea' ).rich_textarea( triggers:
 
 The callback function will be called once a user enters a trigger character and at least two characters after that. (The number of characters is currently hard coded at 2). The trigger string is then passed to the callback. The callback must reply with an array formatted as jquery.ui.autocomplet would expect. [jquery.ui.autocomplete formatted array of labels and values](http://api.jqueryui.com/autocomplete/#option-source). 
 
-Rich-TextArea expects the value: key itself to consist of value: and content: keys as in:
+Rich_TextArea expects the value: key itself to consist of value: and content: keys as in:
 
 ```javascript
 
@@ -114,7 +138,7 @@ You may define multiple trigger characters each with their own callback function
 
 ## Hightlighting
 
-Rich-TextArea applies the *.highlight* class to an embedded object when it is clicked on with the mouse or moved next to using the arrow keys.
+Rich_TextArea applies the *.highlight* class to an embedded object when it is clicked on with the mouse or moved next to using the arrow keys.
 
 
 ## Options
@@ -137,7 +161,7 @@ This is a first ALPHA release. I have tested this in Chrome, FireFox and MSIE 9 
 
 All the effort has gone into simply making the beast work more or less. No effort has been put into efficiency or packaging at this time.
 
-Rich-TextArea was built for my [Miles By Motorcycle](http://miles-by-motorcycle.com) site and will figure prominently once I launch the new codebase. As a result, I do not expect to abandon this project any time soon. 
+Rich_TextArea was built for my [Miles By Motorcycle](http://miles-by-motorcycle.com) site and will figure prominently once I launch the new codebase. As a result, I do not expect to abandon this project any time soon. 
 
 I had really hoped to find an adequate pre-existing plugin that I could use but unfortunately I was unable to find anything that worked the way I needed. Thus, I decided to get my hands dirty and write a jQuery plugin. All I wanted to do was be able to have a textarea like widget that I could insert images and markup into, include @mentions and #tags, and have them work the way one would expect. Little did I know that this would end up being so challenging.
 
@@ -164,9 +188,26 @@ To address this, I intercept key presses and look to see if the caret is next to
 What has proven particularly challenging is getting cursor movement to behave as expected in all cases when one considers how the various browsers format content and what their default key handler behavior is. There are still some cases where the cursor jumps one space too many or the code doesn't recognize that it's next to an object (and should highlight it).
 
 
+### Debugging
+
+The code includes prodigious trace messages which can be turned by by including:
+
+```html
+<script src="ddt.js" type="text/javascript"></script>
+```
+
+and then calling:
+
+```javascript
+ddt.on();
+```
+
+Messages are sent to the javascript console. 
+
+
 ### Known Bugs
 
-1. Under Linux, at least in Fedora Core, pressing the DELETE key on the numeric keypad in Chrome generates a keyCode of 0 which confuses Rich-TextArea.
+1. Under Linux, at least in Fedora Core, pressing the DELETE key on the numeric keypad in Chrome generates a keyCode of 0 which confuses Rich_TextArea.
 
 2. Sometimes it's still possible after doing significant editing to confuse the cursor movement code. It will sometimes jump one character or line too many especially in the LEFT arrow case.
 
@@ -174,4 +215,4 @@ What has proven particularly challenging is getting cursor movement to behave as
 
 4. In FireFox, due to a [bug in jquery.ui.autocomplete](http://bugs.jqueryui.com/ticket/8911), without editing jquery.ui.autocomplete.js, up and down arrow keys do not work.
 
-5. Clicking on an embedded image in MSIE causes the image to be selected by the browser allowing it to be deleted in such a way that confuses Rich-TextArea.
+5. Clicking on an embedded image in MSIE causes the image to be selected by the browser allowing it to be deleted in such a way that confuses Rich_TextArea.

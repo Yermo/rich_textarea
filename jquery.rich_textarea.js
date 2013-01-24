@@ -47,6 +47,8 @@ if ( typeof( ddt ) == 'undefined' )
 *
 * Implements a contenteditable <div> textarea replacement with the ability 
 * to include trigger character invoked in-place autocompletes. (e.g. @mentions, #tags, etc)
+* in addition to defining callbacks that get triggered as the user types based on an array
+* of regexes.
 *
 * Support is also included to add other rich text objects. Each such object
 * is treated as a single character from the perspective of arrow keys, deletes, 
@@ -54,7 +56,7 @@ if ( typeof( ddt ) == 'undefined' )
 *
 * USAGE:
 *
-* $( selector ).rich_textarea( trigger_definitions )
+* $( selector ).rich_textarea( trigger_definitions, regex_definitions )
 *
 * where: 
 *
@@ -66,6 +68,12 @@ if ( typeof( ddt ) == 'undefined' )
 *		callback:	callback invoked on autocomplete. It expects one parameter, the string that
 *						triggered the autocomplete and returns an array of potential completions per jquery 
 *						autocomplete docs. {@link http://api.jqueryui.com/autocomplete/#option-source}
+*
+*	regex_definitions is an array of objects
+*
+*		regex:		regular expression to match againt words entered into the area
+*		callback:	callback to execute is a patten is matched. Accepts a word_entry object as a 
+*						parameter which include startNode, startOffset, endNode, endOffset and word keys.
 *
 * @author <a href="http://a-software-guy.com/yermo">Yermo Lamers</a>, Co-Founder, DTLink, LLC
 *
@@ -126,6 +134,14 @@ if ( typeof( ddt ) == 'undefined' )
 	var selectionEntered = false;
 
 	/**
+	* flag used to indicate whether or not to do regex replacements
+	*
+	* there are some chicken and eggs problems with autocomplete and the ENTER key.
+	*/
+
+	var do_regex = true;
+
+	/**
 	* the rich_textarea widget definition 
 	*/
 
@@ -144,7 +160,18 @@ if ( typeof( ddt ) == 'undefined' )
 			*	callback: callback, with the autocomplete trigger word as a parameter, to feed completion list to autocomplete
 			*/
 
-			triggers: []
+			triggers: [],
+
+			/**
+			* definition of regexes.
+			*
+			* an array of regexes each containing keys:
+			*
+			* 	regex: regex to match entered words against.
+			*	callback: callback with a single parameter, word_entry, containing startNode, startOffset, endNode, endOffset, and word keys.
+			*/
+
+			regexes: []
 
 			},
 
@@ -167,6 +194,7 @@ if ( typeof( ddt ) == 'undefined' )
 			this._on(
 				{
 				keyup: "_onKeyUp",
+				keypress: "_onKeyPress",
 				keydown: "_onKeyDown",
 				mouseup: "_onMouseUp"
 				});
@@ -232,14 +260,14 @@ if ( typeof( ddt ) == 'undefined' )
 					// as 2 here for now.
 
 					if (( trigger_entry != false ) &&
-						( trigger_entry.term.length >= 2 ))
+						( trigger_entry.word.length >= 2 ))
 						{
 
 						ddt.log( "source(): invoking response" );
 
 						// this causes the autocomplete menu to be populated
 
-						response( trigger_entry.callback( trigger_entry.term ) );
+						response( trigger_entry.callback( trigger_entry.word ) );
 
 						}
 					
@@ -299,6 +327,19 @@ if ( typeof( ddt ) == 'undefined' )
 
 					event.preventDefault();
 
+					// prevent regexes from running.
+
+					richtext_widget.do_regex = false;
+
+					},
+
+				/**
+				* keep track of whether the autocomplete menu is open or closed
+				*/
+
+				close: function( event, ui )
+					{
+					richtext_widget.do_regex = true;
 					}
 
 				});	// end of this.element.autocomplete
@@ -580,6 +621,49 @@ if ( typeof( ddt ) == 'undefined' )
 			},	// end of _onKeyDown()
 
 		/**
+		* keypress handler
+		*
+		* There's a conflict between our regex processing and how autocomplete handles kepresses. 
+		*
+		* We want autocomplete to run first then our stuff, but before the content area has a chance
+		* to update.
+		*/
+
+		_onKeyPress: function( event )
+			{
+
+			ddt.log( "_onKeyPress(): with key '" + event.keyCode + "' event: ", event );
+
+			switch ( event.which )
+				{
+
+				case $.ui.keyCode.SPACE:
+
+					// on pressing SPACE check to see if we match any regexes.
+
+					ddt.log( "_onKeyDown(): SPACE pressed. Checking regexes" );
+
+					this._checkRegexes( event );
+
+					break;
+
+				case $.ui.keyCode.ENTER:
+
+					// we have to be careful not to let regexes conflict with the autocomplete
+					// dropdown. The dropdown catches the keypress event for ENTER but does not, for 
+					// whatever reason, stop propagation so we get that keypress here. 
+
+					ddt.log( "_onKeyDown(): SPACE pressed. Checking regexes" );
+
+					this._checkRegexes( event );
+
+					break;
+
+				}
+
+			},	// end of onKeyPress()
+
+		/**
 		* check for spaces and arrow key moves
 		*
 		* This method manages cancelling any active autocomplete. It also handles the case
@@ -774,7 +858,7 @@ if ( typeof( ddt ) == 'undefined' )
 			if ( trigger_entry = this._checkForTrigger() )
 				{
 				
-				ddt.log( "_onMouseUp(): calling autocomplete from onMouseUp handler with term '" + trigger_entry.term + "'" );
+				ddt.log( "_onMouseUp(): calling autocomplete from onMouseUp handler with term '" + trigger_entry.word + "'" );
 
 				// FIXME: for some reason when _checkForTrigger() is called from the autocomplete source callback
 				// the selection is lost. So _checkForTrigger() sets a class level copy which source checks. Ugly.
@@ -1372,6 +1456,99 @@ if ( typeof( ddt ) == 'undefined' )
 			},	// end of _checkForTrigger()
 
 		/**
+		* check for regex match
+		*
+		* An array of regex's may be defined that will invoke a callback if a matching pattern is 
+		* entered by the user. For example, ;) might invoke a callback to insert a smiley icon.
+		*
+		* Callback functions are provided an object identifying the range and word matched that
+		* invoked the callback.
+		*
+		* It is possible to combine trigger character callback and regexes on the same pattern. For
+		* instance, consider #tags. On the one hand, once the user types #ta for instnace you want to 
+		* display the dropdown but also if the user cancels out you may want to do something with the
+		* new tag present in the text such as format it as a tag.
+		*
+		* Trigger definitions have precedence over regexs. For example we may define
+		* a trigger on #tags but also define a regex on #[a-zA-Z0-9]+. If the user does not
+		* select an item from the dropdown, the regex callback will be run. 
+		*
+		* @param {Event} event 
+		*
+		* @see regexes
+		*/
+
+		_checkRegexes: function( event )
+			{
+
+			var caret = null;
+			var word_entry = null;
+
+			ddt.log( "_checkRegexes(): with event: ", event );
+
+			caret = this._getCaretPosition();
+
+			if ( caret.offset == -1 )
+				{
+
+				ddt.log( "_checkRegexes(): we are not inside a text node. No word" );
+
+				return false;
+				}
+
+			ddt.log( "_checkRegexes(): current caret position is " + caret.offset + " value is '" + caret.dom_node.nodeValue.charAt( caret.offset - 1 ) + "'" );
+
+			if ( event.type =='keyup' )
+				{
+
+				// if the user pressed a space, then we need to start looking two characters back.
+
+				if ( caret.offset < 3 )
+					{
+					return;
+					}
+
+				// we're in keyup so the cursor has moved past the space
+
+				caret.offset--;
+
+				}
+
+			// are we inside the bounds of a word that may be interspersed zero width space
+			// character and may span multiple text nodes? (thanks WebKit)
+			//
+			// -1 because the caret position is to the right of the last character entered.
+
+			if ( word_entry = this._getWord( caret.dom_node, caret.offset - 1 ) )
+				{
+
+				ddt.log( "_checkRegexes(): found word '" + word_entry.word + "'" );
+
+				// loop through the regex definitions checking each regular expression. If
+				// we find a match, run the callback. We only run one match, the first match having
+				// precedence.
+
+				for ( var i = 0; i < this.options.regexes.length; i++ )
+					{
+
+					ddt.log( "_checkRegexes(): checking against '" + this.options.regexes[i].regex );
+
+					if ( word_entry.word.match( this.options.regexes[i].regex ) )
+						{
+
+						ddt.log( "_checkRegexes(): found match at offset '" + i + "'" );
+
+						this.options.regexes[i].callback( word_entry );
+
+						}
+
+					}
+
+				}	// end of if we got a word.
+
+			},	// end of _checkRegexes()
+
+		/**
 		* search backwards for start of trigger word.
 		*
 		* Are we in a trigger word? 
@@ -1576,12 +1753,16 @@ if ( typeof( ddt ) == 'undefined' )
 
 			ddt.log( "_isTriggerStart(): found a trigger." );
 
-			trigger_entry.startOffset = trigger_start.offset;
+			trigger_entry.startOffset = trigger_start.offset + 1;
 			trigger_entry.startNode = trigger_start.dom_node
 
-			// _getTriggerWord() expects the node and offset pointing at the trigger character.
+			// _getWordEnd() expects the node and offset pointing at the trigger character.
 
-			trigger_entry = this._getTriggerWord( trigger_entry );
+			trigger_entry = this._getWordEnd( trigger_entry );
+
+			// need to include the trigger character as well.
+
+			trigger_entry.startOffset = trigger_start.offset;
 
 			current_trigger = trigger_entry;
 
@@ -1590,32 +1771,30 @@ if ( typeof( ddt ) == 'undefined' )
 			},	// end  of _isTrigger()
 
 		/**
-		* returns a trigger word.
+		* find the end boundary of a word taking multiple text nodes into account.
 		*
-		* searches from a given character offset forward to returns the string representing the trigger word.
+		* searches from a given character offset forward to returns the string representing the word.
 		* Takes multiple nodes and interspersed zero width characters into account.
 		*
-		* @param {Object} trigger_entry object containing dom_node and offset of start of range to search.
+		* @param {Object} word_entry object containing startNode and startOffset of start of range to search.
 		*
-		* @return {String|Boolean} trigger word or false if not a trigger word boundary
+		* @return {Object|Boolean} with keys startNode, startOffset, endNode, endOffset, word or false if not a trigger word boundary
 		*/
 
-		_getTriggerWord: function( trigger_entry )
+		_getWordEnd: function( word_entry )
 			{
 			
 			var loop_brake = 200;
-			var trigger_word = '';
+			var word = '';
 
-			ddt.log( "_getTriggerWord(): top with trigger_entry :", trigger_entry );
+			ddt.log( "_getWordEnd(): top with word_entry :", word_entry );
 
-			var dom_node = trigger_entry.startNode;
-			var caret_position = trigger_entry.startOffset;
+			var dom_node = word_entry.startNode;
+			var caret_position = word_entry.startOffset;
 
-			trigger_entry.term = '';
+			word_entry.word = '';
 
-			caret_position++;
-
-			ddt.log( "_getTriggerWord(): at start of trigger word with caret_position '" + caret_position + "' and char '" + dom_node.nodeValue.charAt( caret_position ) + "' length '" + dom_node.nodeValue.length + "'" );
+			ddt.log( "_getWordEnd(): at start of trigger word with caret_position '" + caret_position + "' and char '" + dom_node.nodeValue.charAt( caret_position ) + "' length '" + dom_node.nodeValue.length + "'" );
 
 			while ( true )
 				{
@@ -1624,12 +1803,12 @@ if ( typeof( ddt ) == 'undefined' )
 
 				if ( loop_brake-- <= 0 )
 					{
-					ddt.error( "_isTriggerWord(): runaway loop" );
+					ddt.error( "_getWordEnd(): runaway loop" );
 
 					return false;
 					}
 
-				ddt.log( "_getTriggerWord(): Top of loop '" + caret_position + "'" );
+				ddt.log( "_getWordEnd(): Top of loop '" + caret_position + "'" );
 
 				// can be 0 if we get a 0 length node 
 
@@ -1639,29 +1818,29 @@ if ( typeof( ddt ) == 'undefined' )
 					if ( dom_node.nextSibling == null )
 						{
 					
-						ddt.log( "_getTriggerWord(): returning '" + trigger_word + "'" );
+						ddt.log( "_getWordEnd(): returning '" + word + "'" );
 
-						trigger_entry.endNode = dom_node;
-						trigger_entry.endOffset = caret_position;
-						trigger_entry.term = trigger_word;
+						word_entry.endNode = dom_node;
+						word_entry.endOffset = caret_position;
+						word_entry.word = word;
 
-						return trigger_entry;
+						return word_entry;
 					
 						}
 
   					if ( dom_node.nextSibling.nodeType != 3 )
 						{
 
-						ddt.log( "_getTriggerWord(): nextSibling is NOT a text node. Returning '" + trigger_word + "'" );
+						ddt.log( "_getWordEnd(): nextSibling is NOT a text node. Returning '" + word + "'" );
 
-						trigger_entry.endNode = dom_node;
-						trigger_entry.endOffset = caret_position;
-						trigger_entry.term = trigger_word;
+						word_entry.endNode = dom_node;
+						word_entry.endOffset = caret_position;
+						word_entry.word = word;
 
-						return trigger_entry;
+						return word_entry;
 						}
 
-					ddt.log( "_getTriggerWord(): moving to next sibling of type '" + dom_node.nextSibling.nodeType + "' with length '" + dom_node.nextSibling.nodeValue.length + "' and value '" + dom_node.nextSibling.nodeValue + "'" );
+					ddt.log( "_getWordEnd(): moving to next sibling of type '" + dom_node.nextSibling.nodeType + "' with length '" + dom_node.nextSibling.nodeValue.length + "' and value '" + dom_node.nextSibling.nodeValue + "'" );
 
 					dom_node = dom_node.nextSibling;
 					caret_position = 0;
@@ -1674,7 +1853,7 @@ if ( typeof( ddt ) == 'undefined' )
 					if ( dom_node.nodeValue.length == 0 )
 						{
 						
-						ddt.log( "_getTriggerWord(): empty text node found." );
+						ddt.log( "_getWordEnd(): empty text node found." );
 
 						continue;
 
@@ -1687,7 +1866,7 @@ if ( typeof( ddt ) == 'undefined' )
 				if ( dom_node.nodeValue.charAt( caret_position ) == '\u200B' )
 					{
 
-					ddt.log( "_getTriggerWord(): skipping zero width space character" );
+					ddt.log( "_getWordEnd(): skipping zero width space character" );
 
 					caret_position++;
 
@@ -1700,9 +1879,9 @@ if ( typeof( ddt ) == 'undefined' )
 
 					// it's not a zero width character or a space. add it to the trigger string.
 			
-					ddt.log( "_getTriggerWord(): non-space, adding to string position '" + caret_position + "' char '" + dom_node.nodeValue.charAt( caret_position ) + "' node:", dom_node );
+					ddt.log( "_getWordEnd(): non-space, adding to string position '" + caret_position + "' char '" + dom_node.nodeValue.charAt( caret_position ) + "' node:", dom_node );
 
-					trigger_word += dom_node.nodeValue.charAt( caret_position );
+					word += dom_node.nodeValue.charAt( caret_position );
 
 					caret_position++;
 
@@ -1710,19 +1889,19 @@ if ( typeof( ddt ) == 'undefined' )
 				else 
 					{
 
-					ddt.log( "_getTiggerWord(): found a space. Returning '" + trigger_word + "'" );
+					ddt.log( "_getWordEnd(): found a space. Returning '" + word + "'" );
 
-					trigger_entry.endNode = dom_node;
-					trigger_entry.endOffset = caret_position;
-					trigger_entry.term = trigger_word;
+					word_entry.endNode = dom_node;
+					word_entry.endOffset = caret_position;
+					word_entry.word = word;
 
-					return trigger_entry;
+					return word_entry;
 
 					}
 
 				}	// end of while loop.
 
-			},	// end of _getTrigger()
+			},	// end of _getWordEnd()
 
 		/**
 		* is the given character a trigger character?
@@ -1749,6 +1928,163 @@ if ( typeof( ddt ) == 'undefined' )
 			return false;
 
 			},	// end of _isTriggerChar()
+
+		/**
+		* search for the boundaries of a word.
+		*
+		* given a dom_node and an offset searches backwards then forwards for the boundary of a 
+		* word.  
+		*
+		* Once found, returns the word in addition to the range.
+		*
+		* @param {Node} dom_node textnode to start searching in.
+		* @param {Integer} caret_position position to start search. 
+		*
+		* @return {object|Boolean} with keys word, startNode, startOffset, endNode, endOffset or false if not a word
+		*/
+
+		_getWord: function( dom_node, caret_position )
+			{
+
+			var loop_brake = 200;
+
+			// used to return the word, and range.
+
+			var word = {};
+
+			// used to track if we found non-whitespace
+
+			var found_char_flag = false;
+
+			// remember that we can inconveniently have zerospace characters anywhere after
+			// inserts of lines and objects and subsequent deletes.
+			//
+			// search backwards for a space.
+
+			while ( true )
+				{
+
+				loop_brake--;
+
+				if ( loop_brake <= 0 )
+					{
+
+					ddt.error( "_getWord(): runaway loop. braking" );
+
+					return false;
+					}
+
+				if ( caret_position == -1 )
+					{
+
+					ddt.log( "_getWord(): top of loop, caret_position is '" + caret_position + "' previousSibling is:", dom_node.previousSibling );
+		
+					if ( dom_node.previousSibling == null )
+						{
+
+						// beginning of container means we've found a word boundary.
+											
+						ddt.log( "_getWord(): beginning of container found." );
+
+						break;	// out of while loop 
+					
+						}
+
+  					if ( dom_node.previousSibling.nodeType != 3 )
+						{
+
+						// running into a different element also means a word boundary (likely a BR)
+
+						ddt.log( "_getWord(): previousSibling is NOT a text node." );
+
+						break;	// out of while loop 
+
+						}
+
+					dom_node = dom_node.previousSibling;
+
+					caret_position = dom_node.nodeValue.length - 1;
+
+					ddt.log( "_getWord(): moving to previousSibling length '" + caret_position + "'" );
+
+					if ( caret_position == -1 )
+						{
+
+						// empty text nodes seem to be inserted by WebKit randomly.
+
+						ddt.log( "_getWord(): zero length textnode encountered" );
+
+						continue;
+
+						}
+
+					}	// end of if we are at the beginning of a textnode.
+
+				// do we have a zero width space character? 
+
+				if ( dom_node.nodeValue.charAt( caret_position ) == '\u200B' )
+					{
+
+					ddt.log( "_getWord(): skipping zero width space character" );
+
+					caret_position--;
+
+					continue;
+						
+					}
+
+				ddt.log( "_getWord(): Not a zero width space. Is it a space character?" );
+								
+				if ( dom_node.nodeValue.charAt( caret_position ).match( /\s+/ ))
+					{
+
+					// we've found a space character and thus the beginning of a word.
+
+					ddt.log( "_getWord(): found a space. This is the start of a word" );
+
+					break;
+
+					}
+				else
+					{
+					// found a normal character
+
+					found_char_flag = true;
+					}
+
+
+				ddt.log( "_getWord(): '" + dom_node.nodeValue.charAt( caret_position) + "' not a space." );
+
+				caret_position--;
+
+				}	// end of while loop.
+
+			// --------------------------------
+			// Arrive here when we've found the beginning of a word taking multiple text nodes
+			// and zero width space characters into account.
+
+			word.startNode = dom_node;
+			word.startOffset = caret_position + 1;
+
+			// if we only matched whitespace, abort.
+
+			if (! found_char_flag )
+				{
+
+				ddt.log( "_getWord(): only found whitespace" );
+
+				return false;
+				}
+
+			ddt.log( "_getWord(): found a the beginning of a word, now searching for the end." );
+
+			// _getWordEnd() expects the node and offset pointing at the.
+
+			word = this._getWordEnd( word );
+
+			return word;
+
+			},	// end  of _getWord()
 
 		/**
 		* check for the presence of an object
@@ -3777,30 +4113,9 @@ if ( typeof( ddt ) == 'undefined' )
 		_insertSelection: function( trigger, selection )
 			{
 
-			ddt.log( "_insertSelection: with: ", selection );
-
-			var sel = RANGE_HANDLER.getSelection();
-			var range = CREATERANGE_HANDLER.createRange();
-
 			ddt.log( "_insertSelection(): deleting trigger word based on trigger: ", trigger );
 
-			// the idea is we have to first delete the trigger word then insert
-			// the new node.
-			//
-			// However, because the fact the WebKit does not merge adjacent textnodes the 
-			// trigger word may span multiple nodes (and have zero width space characters in between)
-			// the trigger sent to us contains the complete range.
-
-			range.setStart( trigger.startNode, trigger.startOffset );
-			range.setEnd( trigger.endNode, trigger.endOffset );
-			range.deleteContents();
-
-//			sel.removeAllRanges();
-//			sel.addRange( range );
-
-			ddt.log( "_insertSelection(): after deleting trigger word" );
-
-			this.insertObject( selection.content, selection.value );
+			this.replaceWord( trigger, selection.content, selection.value );
 
 			// FIXME: There's a bug in jquery.ui.autocomplete having to do with up and down
 			// arrows in FireFox not working. autocomplete intercepts and disables some keypresses.
@@ -3813,6 +4128,40 @@ if ( typeof( ddt ) == 'undefined' )
 			this.selectionEntered = true;
 
 			},	// end of _insertSelection()
+
+		/**
+		* replace a word with some html content.
+		*
+		* Given a text range returned by _getWord(), replaces it with the object provided.
+		* Typically used in regex callbacks.
+		*
+		* @param {Object} word_entry entry with startNode, startOffset, endNode, endOffset and word
+		* @param {String} content HTML content to replace word_entry with
+		* @param {String} data_value data value to tag inserted html with
+		*/
+
+		replaceWord: function( word_entry, content, data_value )
+			{
+
+			var sel = RANGE_HANDLER.getSelection();
+			var range = CREATERANGE_HANDLER.createRange();
+
+			ddt.log( "replaceWord(): deleting word: ", word_entry );
+
+			// However, because the fact the WebKit does not merge adjacent textnodes the 
+			// trigger word may span multiple nodes (and have zero width space characters in between)
+			// the trigger sent to us contains the complete range.
+
+			range.setStart( word_entry.startNode, word_entry.startOffset );
+			range.setEnd( word_entry.endNode, word_entry.endOffset );
+			range.deleteContents();
+
+			sel.removeAllRanges();
+			sel.addRange( range );
+
+			this.insertObject( content, data_value );
+
+			}, 
 
 		/**
 		* inserts a textnode with a single zero-width space character.
@@ -4112,7 +4461,6 @@ if ( typeof( ddt ) == 'undefined' )
 			// The approach is to add the object then check to see if we have sibling objects 
 			// before or after us. If not, we add them.
 
-			caret = this._getCaretPosition();
 			var dom_node = node.get(0);
 
 			range.insertNode( node.get(0) );

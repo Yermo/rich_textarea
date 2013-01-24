@@ -24,12 +24,14 @@ Rich_TextArea is not a WYSIWYG editor. It's intended to be a replacement for a p
 
 1. dropdown autocomplete support based on definable trigger characters such as @mentions, #tags, etc.
 2. insertion of arbitrary markup to represent "embedded objects", such as images, links, etc. which are treated as single entities from the point of view of cursor movement and mouse selections. 
-3. generation of a plain text representation of the editable area.
+3. regular expression triggered callbacks enabling things like in-line URL rewriting, smiley insertion, etc.
+4. generation of a plain text representation of the editable area.
 
 Multiple autocomplete trigger characters can be defined simultaneously, each with it's own data-source callback so it's possible to do @mentions and #tagging and other kinds of triggers all at the same time. 
 
 These "embedded objects" are treated as atomic entities and each is tagged with a "data-value" that is used to identify the object on the server. This could be a GUID, a tag name, an ID, whatever. When clicked on, the caret is positioned before the object and the *.highlight* class is applied. ARROW keys move over the object. Pressing DELETE when the caret is positioned before the object on the same line deletes it. Backspacing over an object deletes it as well. When selecting ranges using the mouse or SHIFT-ARROW, the ranges are adjusted to enclose any selected objects. (i.e. it prevents the user from selecting a range into the middle of an embedded object). Moving into an object using the UP and DOWN arrow keys also positions the caret the beginning of the object.  
 
+Multiple regular expression triggers can also be defined.
 
 A public method is available to generate a text version of the contents of the editable div. "embedded objects" are encoded using the 'data-value' and are represented in the text using the notation *[o={data-value}]*. This can then be passed back to the server. It's up to the server to parse this and do something useful with it.
 
@@ -41,6 +43,7 @@ Rich_TextArea has been tested on:
 1. FireFox 12 & 17
 2. IE 9
 3. Chrome 17
+4. PS/3 
 
 Later versions of these browsers should also work.
 
@@ -115,7 +118,14 @@ $( '#rich_textarea' ).rich_textarea( triggers:
 		{
 		do stuff here with the trigger_word and return an array of labels and values.
 		}
-	}] );
+	}],
+	regexes:
+	[{ regex: '/^:beer:$/',
+	callback: function( word_entry )
+		{
+		do stuff whenever someone types :beer: separated by spaces, possibly inserting a smiley.
+		}
+	}]);
 ```
 
 The callback function will be called once a user enters a trigger character and at least two characters after that. (The number of characters is currently hard coded at 2). The trigger string is then passed to the callback. The callback must reply with an array formatted as jquery.ui.autocomplet would expect. [jquery.ui.autocomplete formatted array of labels and values](http://api.jqueryui.com/autocomplete/#option-source). 
@@ -134,6 +144,15 @@ The value is made up of two parts.
 2. *content* represents the html markup that should be inserted into the editable div when this item is selected from the autocomplete menu.
  
 You may define multiple trigger characters each with their own callback function. In this way you can simultaneously have @user mentions along with #tags if you wanted or define other trigger characters for other purposes. See the [demo](http://a-software-guy.com/demos/rich_textarea/index.php) for an example of how this works. 
+
+
+For regexes that trigger callbacks, the regex may be any javascript regex and is applied to every space delimited "word" entered into the content area. These are checked whenever the user presses ENTER of the SPACE key. It should be noted that regexes can be applied to items also used with autocomplete. For instance, as is shown in the example, one can have an autocomplete trigger defined for # but also fire a regex callback for any #tag that is entered but not selected from the dropdown. This useful, for example, for allowing a user to define new tags inline. 
+The regex callback is provided a word object with the properties:
+1. startNode - the text node on which the word that triggered the callback is located
+2. startOffset - the offset into the startNode
+3. endNode - the text node on which the word ends
+4. endOffset - the offset into the end text node.
+5. word - the word that caused the regex callback to fire. 
 
 
 ## Hightlighting

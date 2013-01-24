@@ -51,6 +51,12 @@
 <script src="jquery.ui.autocomplete.html.js" type="text/javascript"></script>
 <script src="jquery.rich_textarea.js" type="text/javascript"></script>
 
+<script type="text/javascript">
+
+//	ddt.on();
+
+</script>
+
 <!--
 /**
 * the .highlight class is applied to embedded objects when clicked on or when the cursor is 
@@ -142,7 +148,8 @@ enhancements:</p>
 <div class="content_entry" id="RICH_TEXTAREA" contenteditable="true">Click on this -&gt; @ca then on this -&gt; #ta<br>
 Move the mouse around. Try entering @ mentions for blackbeard, edward or calico jack. Move the cursor around. <br>
 You should be able move the cursor next to an object and have the object highlight. Press the arrow key again <br>
-and it should jump over the object. Press one of the buttons below to insert a graphic.</div>
+and it should jump over the object. Press one of the buttons below to insert a graphic. Try typing in :beer: 
+or adding a link.</div>
 
 <hr>
 
@@ -277,7 +284,86 @@ rich textarea will be displayed in the normal textarea below.</p>
 
 				}	// end of callback
 
-			}]
+			}],
+
+		/**
+		* regex definition
+		*
+		* regexes can be defined to invoke callbacks when the user enters certain patterns.
+		*
+		* callbacks are passed an object with startNode, startOffset, endNode, endOffset and word keys
+		*/
+
+		regexes: [ 
+
+			/**
+			* a beer smiley face replacement 
+			*/
+
+			{
+
+			regex: "^:beer:$",
+
+			callback: function( word_entry )
+				{
+
+				ddt.log( "regex: got word_entry :", word_entry );
+
+				$( '#RICH_TEXTAREA' ).rich_textarea( 'replaceWord', word_entry, '<span><img src="images/beer-drinking-smiley.gif"></span>', 'smiley' );
+
+				}
+
+			},
+			
+			/**
+			* recognize and replace URL's. 
+			*
+			* Could implement a Facebook/LinkedIn style URL querying ajax thing here.
+			*/
+
+			{
+
+			regex: /^((http|https):\/\/([\-\w]+\.)+\w{2,5}(\/[%\-\w]+(\.\w{2,})?)*(([\w\-\.\?\\/+@&#;`~=%!]*)(\.\w{2,})?)*\/?)$/i,
+
+			callback: function( word_entry )
+				{
+
+				ddt.log( "regex: got word entry:", word_entry );
+
+				$( '#RICH_TEXTAREA' ).rich_textarea( 'replaceWord', word_entry, '<span><a href="' + word_entry.word + '">' + word_entry.word + '</a>', word_entry.word );
+
+				}
+
+			},
+			
+			/**
+			* replace any #tags that have not been selected from a dropdown.
+			*
+			* In a real application, one might like users to add tags dynamically and not restrict them
+			* only to the tags that have already been defined. If the user does not select a tag from the
+			* dropdown above, this will theme the tag.
+			*/
+
+			{
+
+			regex: "^#.+$",
+
+			callback: function( word_entry )
+				{
+
+				ddt.log( "got word_entry:", word_entry );
+
+				// the word will contain the # mark. 
+
+				var word = word_entry.word.substring( 1 );
+
+				$( '#RICH_TEXTAREA' ).rich_textarea( 'replaceWord', word_entry, '<span class="ui-button ui-state-default ui-widget ui-corner-all ui-button-text-only">' + word + '</span>', '#' + word );
+
+				}
+
+			}
+			
+			]
 	
 	});	// end of rich_textarea initialization
 
@@ -294,6 +380,11 @@ rich textarea will be displayed in the normal textarea below.</p>
 
 	$( '#angrybutton' ).bind( 'click', function( event )
 		{
+
+		// need this for MSIE. It loses focus when the button is pressed.
+
+		$( '#RICH_TEXTAREA' ).focus();
+
 		$( '#RICH_TEXTAREA' ).rich_textarea( 'insertObject', '<span><img class="angry" src="images/angry-desk-flip-l.png"></span>', 'angry' );
 		});
 
@@ -301,6 +392,11 @@ rich textarea will be displayed in the normal textarea below.</p>
 
 	$( '#mbymcbutton' ).bind( 'click', function( event )
 		{
+
+		// need this for MSIE. It loses focus when the button is pressed.
+
+		$( '#RICH_TEXTAREA' ).focus();
+
 		$( '#RICH_TEXTAREA' ).rich_textarea( 'insertObject', '<span><img class="mbymc" src="images/MxMC_small.gif"></span>', 'mbymc' );
 		});
 

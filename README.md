@@ -108,13 +108,15 @@ Next, create a content editable div and give it a unique id:
 <div contenteditable="true" id="rich_textarea"></div>
 ```
 
-Enabling Rich_TextArea is just a matter of calling it on the given id. Currently, it takes one argument which is an array of trigger definitions consisting of a trigger character and a callback function. 
+Enabling Rich_TextArea is just a matter of calling it on the given id. Currently, it supports two configuration options:
+1. triggers: an array of trigger definitions consisting of a trigger character and a callback function. 
+2. regexes: an array of regular expressions and callbacks to be invoked when the user enters something that matches.
 
 ```javascript
 
 $( '#rich_textarea' ).rich_textarea( triggers:
 	[{ tigger: '@',
-	callback: function( trigger_word )
+	callback: function( trigger_word, response )
 		{
 		do stuff here with the trigger_word and return an array of labels and values.
 		}
@@ -128,7 +130,7 @@ $( '#rich_textarea' ).rich_textarea( triggers:
 	}]);
 ```
 
-The callback function will be called once a user enters a trigger character and at least two characters after that. (The number of characters is currently hard coded at 2). The trigger string is then passed to the callback. The callback must reply with an array formatted as jquery.ui.autocomplet would expect. [jquery.ui.autocomplete formatted array of labels and values](http://api.jqueryui.com/autocomplete/#option-source). 
+The callback function will be called once a user enters a trigger character and at least two characters after that. (The number of characters is currently hard coded at 2). The trigger string and jquery autcomplete reseponse callback are then passed to the callback. The callback must call response with an array formatted as jquery.ui.autocomplet would expect. [jquery.ui.autocomplete formatted array of labels and values](http://api.jqueryui.com/autocomplete/#option-source). 
 
 Rich_TextArea expects the value: key itself to consist of value: and content: keys as in:
 

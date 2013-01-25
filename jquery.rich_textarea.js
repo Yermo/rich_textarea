@@ -65,9 +65,9 @@ if ( typeof( ddt ) == 'undefined' )
 *	Each object has keys:
 *
 *		trigger:		single trigger character that marks the start of a trigger word. (e.g. @, #, etc)
-*		callback:	callback invoked on autocomplete. It expects one parameter, the string that
-*						triggered the autocomplete and returns an array of potential completions per jquery 
-*						autocomplete docs. {@link http://api.jqueryui.com/autocomplete/#option-source}
+*		callback:	callback invoked on autocomplete. It expects two parameters, the string that
+*						triggered the autocomplete and the autcomplete response callback to pass the 
+*						autocompletions to per jQuery autocomplete docs. {@link http://api.jqueryui.com/autocomplete/#option-source}
 *
 *	regex_definitions is an array of objects
 *
@@ -267,7 +267,7 @@ if ( typeof( ddt ) == 'undefined' )
 
 						// this causes the autocomplete menu to be populated
 
-						response( trigger_entry.callback( trigger_entry.word ) );
+						trigger_entry.callback( trigger_entry.word, response );
 
 						}
 					

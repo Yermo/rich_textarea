@@ -219,13 +219,12 @@ rich textarea will be displayed in the normal textarea below.</p>
 			* generates autocomplete list for #tags
 			*
 			* @param {String} term #tag entered 
-			*
-			* @return {Array} list of matching entries
+			* @param {Function} response jquery ui autocomplete response callback.
 			*
 			* @see http://api.jqueryui.com/autocomplete/#option-source
 			*/
 
-			callback: function( term )
+			callback: function( term, response )
 				{
 				ddt.log( "# callback with term '" + term + "'" );
 
@@ -237,7 +236,7 @@ rich textarea will be displayed in the normal textarea below.</p>
 					{ label: 'tag4', value: { value: 'tag4', content: '<span class="ui-button ui-state-default ui-widget ui-corner-all ui-button-text-only">Tag4</span>' } }
 					];
 
-				return( $.ui.autocomplete.filter( tags, term ) );
+				response( $.ui.autocomplete.filter( tags, term ) );
 
 				}	// end of callback
 			},
@@ -262,13 +261,12 @@ rich textarea will be displayed in the normal textarea below.</p>
 			* based on the term provided. 
 			*
 			* @param {String} term @term entered 
-			*
-			* @return {Array} list of matching entries
+			* @param {Function} response jquery ui autocomplete response callback.
 			*
 			* @see http://api.jqueryui.com/autocomplete/#option-source
 			*/
 
-			callback: function( term )
+			callback: function( term, response )
 				{
 				ddt.log( '@ callback' );
 
@@ -280,7 +278,7 @@ rich textarea will be displayed in the normal textarea below.</p>
 					{ label: '<img class="dropdown" src="images/120px-Bartholomew_Roberts_Flag.svg.png">Bartholomew Roberts', value: { value: 'pirate4', content: '<span class="pirate"><a href="http://en.wikipedia.org/wiki/Bartholomew_Roberts"><img class="inline" src="images/120px-Bartholomew_Roberts_Flag.svg.png">Bartholomew Roberts</a></span>' } }
 					];
 
-				return( $.ui.autocomplete.filter( tags, term ) );
+				response( $.ui.autocomplete.filter( tags, term ) );
 
 				}	// end of callback
 

@@ -653,7 +653,7 @@ if ( typeof( ddt ) == 'undefined' )
 					// dropdown. The dropdown catches the keypress event for ENTER but does not, for 
 					// whatever reason, stop propagation so we get that keypress here. 
 
-					ddt.log( "_onKeyDown(): SPACE pressed. Checking regexes" );
+					ddt.log( "_onKeyDown(): ENTER pressed. Checking regexes" );
 
 					this._checkRegexes( event );
 
@@ -780,8 +780,12 @@ if ( typeof( ddt ) == 'undefined' )
 
 						// autocomplete BUG? If we do not pass a value for the second argument here
 						// search is not invoked.
+						//
+						// We call this here to force the autocomplete menu open if we move the cursor
+						// over a trigger word. autocomplete does not do that automatically.
 
 						this.element.autocomplete( 'search', 'test' );
+
 						}
 
 					break;
@@ -1510,7 +1514,7 @@ if ( typeof( ddt ) == 'undefined' )
 
 				// we're in keyup so the cursor has moved past the space
 
-				caret.offset--;
+		 		caret.offset--;
 
 				}
 
@@ -1821,7 +1825,7 @@ if ( typeof( ddt ) == 'undefined' )
 						ddt.log( "_getWordEnd(): returning '" + word + "'" );
 
 						word_entry.endNode = dom_node;
-						word_entry.endOffset = caret_position;
+						word_entry.endOffset = caret_position - 1;
 						word_entry.word = word;
 
 						return word_entry;
@@ -1834,7 +1838,7 @@ if ( typeof( ddt ) == 'undefined' )
 						ddt.log( "_getWordEnd(): nextSibling is NOT a text node. Returning '" + word + "'" );
 
 						word_entry.endNode = dom_node;
-						word_entry.endOffset = caret_position;
+						word_entry.endOffset = caret_position - 1;
 						word_entry.word = word;
 
 						return word_entry;
@@ -1879,7 +1883,7 @@ if ( typeof( ddt ) == 'undefined' )
 
 					// it's not a zero width character or a space. add it to the trigger string.
 			
-					ddt.log( "_getWordEnd(): non-space, adding to string position '" + caret_position + "' char '" + dom_node.nodeValue.charAt( caret_position ) + "' node:", dom_node );
+					ddt.log( "_getWordEnd(): non-space, adding to string position '" + caret_position + "' char '" + dom_node.nodeValue.charAt( caret_position ) + "' node of length '" + dom_node.nodeValue.length + "':", dom_node );
 
 					word += dom_node.nodeValue.charAt( caret_position );
 
@@ -1892,7 +1896,10 @@ if ( typeof( ddt ) == 'undefined' )
 					ddt.log( "_getWordEnd(): found a space. Returning '" + word + "'" );
 
 					word_entry.endNode = dom_node;
-					word_entry.endOffset = caret_position;
+
+					// current position is a space.
+
+					word_entry.endOffset = caret_position - 1;
 					word_entry.word = word;
 
 					return word_entry;
@@ -2064,7 +2071,10 @@ if ( typeof( ddt ) == 'undefined' )
 			// and zero width space characters into account.
 
 			word.startNode = dom_node;
-			word.startOffset = caret_position + 1;
+
+			// current char is a space. move past it.
+
+			word.startOffset = caret_position + 1 ;
 
 			// if we only matched whitespace, abort.
 
@@ -2078,7 +2088,7 @@ if ( typeof( ddt ) == 'undefined' )
 
 			ddt.log( "_getWord(): found a the beginning of a word, now searching for the end." );
 
-			// _getWordEnd() expects the node and offset pointing at the.
+			// _getWordEnd() expects the node and offset pointing at the beginning of the word.
 
 			word = this._getWordEnd( word );
 
@@ -2319,7 +2329,7 @@ if ( typeof( ddt ) == 'undefined' )
 		* @return {Object|Boolean} dom_node, offset, type, checkForObjects, preventDefault or false on error.
 		* 
 		* @see insertEditableSelection()
-		* @see _onMouseDown()
+		* @see _onMouseUp()
 		*/
 
 		_moveCaret: function( dom_node, caret_position, direction )
@@ -3693,7 +3703,9 @@ if ( typeof( ddt ) == 'undefined' )
 						return;
 						}
 
-					// 'end' is really one character past the end of the node. 
+					// 'end' is really one character past the end of the node per 
+					// docs: http://help.dottoro.com/ljlmndqh.php The range end is
+					// one character past the end of the range. 
 
 					range.setStart( dom_node, dom_node.nodeValue.length );
 					range.setEnd( dom_node, dom_node.nodeValue.length );
@@ -4153,11 +4165,18 @@ if ( typeof( ddt ) == 'undefined' )
 			// the trigger sent to us contains the complete range.
 
 			range.setStart( word_entry.startNode, word_entry.startOffset );
-			range.setEnd( word_entry.endNode, word_entry.endOffset );
+
+			// from the docs: The end position of a Range is the first position in the DOM hierarchy that is after the Range.
+
+			range.setEnd( word_entry.endNode, word_entry.endOffset + 1 );
+
 			range.deleteContents();
 
-			sel.removeAllRanges();
-			sel.addRange( range );
+			// FIXME: I do not understand why but if I apply this here it causes one extra space to get consumed
+			// when the object is inserted. This makes no sense to me. Clearly I'm missing something.
+
+//			sel.removeAllRanges();
+//			sel.addRange( range );
 
 			this.insertObject( content, data_value );
 

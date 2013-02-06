@@ -126,6 +126,14 @@ if ( typeof( ddt ) == 'undefined' )
 	//	var CREATERANGE_HANDLER = document;
 
 	/**
+	* saved copy of current range
+	*
+	* @see insertObject()
+	*/
+
+	var currentRange = false;
+
+	/**
 	* flag used to let onKeyUp know not to process ENTER.
 	*
 	* @see _insertSelection()
@@ -312,7 +320,7 @@ if ( typeof( ddt ) == 'undefined' )
 				select: function( event, ui )
 					{
 
-					ddt.log( "select(): got select event ", event, " and ui element ", ui );
+					ddt.log( "select(): got select event ", event, " and ui element ", ui, " current range is ", currentRange );
 
 					// replace the trigger word, including trigger character, with the selected
 					// value.
@@ -692,6 +700,11 @@ if ( typeof( ddt ) == 'undefined' )
 
 				}
 
+			// save the range in case we click out of the div and then want to insert
+			// something.
+
+			this._saveRange();
+
 			// if we are at the end of an object, highlight it to indicate 
 			// that it'll get deleted on backspace.
 
@@ -839,6 +852,11 @@ if ( typeof( ddt ) == 'undefined' )
 
 				return;
 				}
+
+			// save the range in case we click out of the div and then want to insert
+			// something.
+
+			this._saveRange();
 
 			ddt.log( "_onMouseUp(): did we click on an object?:", event.target );
 
@@ -1376,6 +1394,34 @@ if ( typeof( ddt ) == 'undefined' )
 			return false;
 
 			},	// end of _handleRangeSelection()
+
+		/**
+		* saves the current range
+		*
+		* A problem arises when we want to call insertObject when the content editable div 
+		* does not have focus. The current range selection gets screwed up and we end up
+		* inserting content in the page where-ever the user had clicked last, or not at all. Not
+		* good.
+		*
+		* So the idea is to keep track of the current range whenever the user does anything in 
+		* the div. The range is then restored when insertObject is called.
+		*
+		* @see insertObject()
+		*/
+
+		_saveRange: function( range )
+			{
+			ddt.log( "_saveRange(): before save currentRange: ", currentRange );
+
+			if ( typeof( range ) == 'undefined' )
+				{
+				var range = RANGE_HANDLER.getSelection().getRangeAt(0);
+				}
+
+			currentRange = range.cloneRange();
+
+			ddt.log( "_saveRange(): saving currentRange: ", currentRange );
+			},
 
 		/**
 		* determines if we are in a trigger word
@@ -2306,6 +2352,8 @@ if ( typeof( ddt ) == 'undefined' )
 
 				}
 
+			this._saveRange();
+
 			return;
 
 			},	// end of deleteObject()
@@ -2741,6 +2789,8 @@ if ( typeof( ddt ) == 'undefined' )
 
 			sel.removeAllRanges();
 			sel.addRange( range );
+
+			this._saveRange();
 
 			return true;
 
@@ -3539,6 +3589,8 @@ if ( typeof( ddt ) == 'undefined' )
 			selection.removeAllRanges();
 			selection.addRange( range );
 
+			this._saveRange();
+
 			},
 
 		/**
@@ -3610,6 +3662,8 @@ if ( typeof( ddt ) == 'undefined' )
 				sel.removeAllRanges()
 				sel.addRange( range );
 
+				this._saveRange();
+
 				return;
 
 				}	// end of if we were selecting an inserted object.
@@ -3644,6 +3698,8 @@ if ( typeof( ddt ) == 'undefined' )
 					sel.removeAllRanges()
 					sel.addRange( range );
 
+					this._saveRange();
+
 					var caret = this._getCaretPosition();
 
 					break;
@@ -3671,6 +3727,8 @@ if ( typeof( ddt ) == 'undefined' )
 					sel.removeAllRanges()
 					sel.addRange( range );
 
+					this._saveRange();
+
 					break;
 
 				case 'beginning':
@@ -3690,6 +3748,8 @@ if ( typeof( ddt ) == 'undefined' )
 
 					sel.removeAllRanges()
 					sel.addRange( range );
+
+					this._saveRange();
 
 					break;
 
@@ -3714,6 +3774,8 @@ if ( typeof( ddt ) == 'undefined' )
 
 					sel.removeAllRanges()
 					sel.addRange( range );
+
+					this._saveRange();
 
 					break;
 
@@ -4125,7 +4187,7 @@ if ( typeof( ddt ) == 'undefined' )
 		_insertSelection: function( trigger, selection )
 			{
 
-			ddt.log( "_insertSelection(): deleting trigger word based on trigger: ", trigger );
+			ddt.log( "_insertSelection(): deleting trigger word based on trigger: ", trigger, " with currentRange ", currentRange );
 
 			this.replaceWord( trigger, selection.content, selection.value );
 
@@ -4171,6 +4233,8 @@ if ( typeof( ddt ) == 'undefined' )
 			range.setEnd( word_entry.endNode, word_entry.endOffset + 1 );
 
 			range.deleteContents();
+
+			this._saveRange( range );
 
 			// FIXME: I do not understand why but if I apply this here it causes one extra space to get consumed
 			// when the object is inserted. This makes no sense to me. Clearly I'm missing something.
@@ -4439,16 +4503,63 @@ if ( typeof( ddt ) == 'undefined' )
 		* @param {String} value GUID or other value to associate with the object. 
 		*
 		* @return {Node} dom node of inserted object.
+		*
+		* @see _saveRange()
 		*/
 
 		insertObject: function( content, value )
 			{
-		
+
+			ddt.log( "insertObject(): top with content '" + content + "' and value '" + value + "'" );
+
+			// this method is often invoked from the 'outside' and as such the 
+			// editable div loses focus which messes up the works.
+
+			this.element.focus();
+
+			ddt.log( "insertObject(): after focus - currentRange is ", currentRange );
+
+			// we may have lost focus so restore the range we saved after
+			// each keypress. However, we also need to take into the account
+			// that the user may not have clicked in the editable div at all.
+
+			if ( currentRange === false )
+				{
+
+				ddt.log( "insertObject(): currentRange is false" );
+
+				// insert a blank text node in the div
+
+				var textnode = this._insertEmptyNode( this.element.get(0), 'child' );
+
+				this._selectTextNode( textnode, 1 );
+
+				// _selectTextNode() calls _saveRange() which affects currentRange. 
+				// I know, ugly side-effect.
+
+				}
+
 			var sel = RANGE_HANDLER.getSelection();
-			var range = sel.getRangeAt(0);
+			var range = currentRange;
+
+			sel.removeAllRanges();
+			sel.addRange( range );
+
 			var caret = null;
 
-			var node = $( content );
+			// for some reason for a range of content returned from the server
+			// this results in an expression error. 
+			//
+			// var node = $( content );
+
+			var tempDiv = document.createElement('div');
+			tempDiv.innerHTML = content;
+
+			// make sure not to include the wrapping temporary div. We make the
+			// assumption here that content is wrapped in some single container tag,
+			// either a div or a span.
+
+			node = $( tempDiv ).contents();
 
 			node.attr( 'data-value', value );
 
@@ -4536,7 +4647,22 @@ if ( typeof( ddt ) == 'undefined' )
 
 			ddt.log( "getTextContent(): top" );
 
-			return this._getTextWithLineBreaks( this.element );
+			var content = this._getTextWithLineBreaks( this.element );
+
+			// strip out all the zero width space characers.
+
+			ddt.log( "getTextcontent(): content length before replace is: '" + content.length + "'" );
+
+			content = content.replace( /[\u200B]/gm, '' );
+
+			if ( content.match( /[\u200B]/ ) != null )
+				{
+				ddt.error( "getTextContent(): zero width chars in content" );
+				}
+
+			ddt.log( "getTextcontent(): content length after replace is: '" + content.length + "'" );
+
+			return content;
 			},
 
 		/**
@@ -4593,6 +4719,17 @@ if ( typeof( ddt ) == 'undefined' )
 			return text_string;
 
 			},	// end of getTextWithLineBreaks()
+
+		/**
+		* clears the content of the editable div.
+		*
+		* Typically used after submit, clears the content of the editable div.
+		*/
+
+		clear: function()
+			{
+			this.element.empty();
+			},
 
 		/**
 		* focuses the rich_textarea

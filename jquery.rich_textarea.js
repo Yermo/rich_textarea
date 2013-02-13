@@ -101,21 +101,6 @@ if ( typeof( ddt ) == 'undefined' )
 (function($) {
 
 	/**
-	* reference to the richtext widget
-	*/
-
-	var richtext_widget = this;
-
-	/**
-	* the current trigger entry
-	*
-	* used in the autcomplete select callback to replace the trigger word 
-	* with the selected value
-	*/
-
-	var current_trigger = false;
-
-	/**
 	* placeholder for rangy or native (document) selections.
 	*/
 
@@ -124,30 +109,6 @@ if ( typeof( ddt ) == 'undefined' )
 
 	//	var RANGE_HANDLER = document;
 	//	var CREATERANGE_HANDLER = document;
-
-	/**
-	* saved copy of current range
-	*
-	* @see insertObject()
-	*/
-
-	var currentRange = false;
-
-	/**
-	* flag used to let onKeyUp know not to process ENTER.
-	*
-	* @see _insertSelection()
-	*/
-
-	var selectionEntered = false;
-
-	/**
-	* flag used to indicate whether or not to do regex replacements
-	*
-	* there are some chicken and eggs problems with autocomplete and the ENTER key.
-	*/
-
-	var do_regex = true;
 
 	/**
 	* the rich_textarea widget definition 
@@ -194,17 +155,50 @@ if ( typeof( ddt ) == 'undefined' )
 
 			// fun with javascript scoping rules.
 
-			richtext_widget = this;
+			var richtext_widget = this;
+
+			/**
+			* the current trigger entry
+			*
+			* used in the autcomplete select callback to replace the trigger word 
+			* with the selected value
+			*/
+
+			this.current_trigger = false;
+
+			/**
+			* saved copy of current range
+			*
+			* @see insertObject()
+			*/
+
+			this.currentRange = false;
+
+			/**
+			* flag used to let onKeyUp know not to process ENTER.
+			*
+			* @see _insertSelection()
+			*/
+
+			this.selectionEntered = false;
+
+			/**
+			* flag used to indicate whether or not to do regex replacements
+			*
+			* there are some chicken and eggs problems with autocomplete and the ENTER key.
+			*/
+
+			this.do_regex = true;
 
 			// widget factory style event binding. First is the name of the 
 			// event mapped onto the string name of the method to call.
 
 			this._on(
 				{
-				keyup: "_onKeyUp",
-				keypress: "_onKeyPress",
-				keydown: "_onKeyDown",
-				mouseup: "_onMouseUp"
+				keyup: function( event ) { this._onKeyUp( event ); },
+				keypress: function( event ) { this._onKeyPress( event ); },
+				keydown: function( event ) { this._onKeyDown( event ); },
+				mouseup: function( event ) { this._onMouseUp( event ); }
 				});
 
 			/**
@@ -320,12 +314,12 @@ if ( typeof( ddt ) == 'undefined' )
 				select: function( event, ui )
 					{
 
-					ddt.log( "select(): got select event ", event, " and ui element ", ui, " current range is ", currentRange );
+					ddt.log( "select(): got select event ", event, " and ui element ", ui, " current range is ", this.currentRange );
 
 					// replace the trigger word, including trigger character, with the selected
 					// value.
 
-					richtext_widget._insertSelection( current_trigger, ui.item.value );
+					richtext_widget._insertSelection( richtext_widget.current_trigger, ui.item.value );
 
 					// it's just been inserted so the cursor should be right behind the thing. 
 
@@ -722,7 +716,7 @@ if ( typeof( ddt ) == 'undefined' )
 					// we close the autocomplete menu on any of these keys.
 
 					this.element.autocomplete( 'close' );
-					current_trigger = false;
+					this.current_trigger = false;
 
 					// FIXME: see  _insertSelection(). jQuery (or maybe my) bug where this
 					// callback is still getting invoked even when enter is pressed in the autocomplete
@@ -748,7 +742,7 @@ if ( typeof( ddt ) == 'undefined' )
 					// we close the autocomplete menu on any of these keys.
 
 					this.element.autocomplete( 'close' );
-					current_trigger = false;
+					this.current_trigger = false;
 
 					ddt.log( "_onKeyUp(): closed autocomplete menu" );
 
@@ -783,7 +777,7 @@ if ( typeof( ddt ) == 'undefined' )
 						ddt.log( "_onKeyUp(): outside of trigger" );
 
 						this.element.autocomplete( 'close' );
-						current_trigger = false;
+						this.current_trigger = false;
 
 						}
 					else
@@ -1411,16 +1405,16 @@ if ( typeof( ddt ) == 'undefined' )
 
 		_saveRange: function( range )
 			{
-			ddt.log( "_saveRange(): before save currentRange: ", currentRange );
+			ddt.log( "_saveRange(): before save currentRange: ", this.currentRange );
 
 			if ( typeof( range ) == 'undefined' )
 				{
 				var range = RANGE_HANDLER.getSelection().getRangeAt(0);
 				}
 
-			currentRange = range.cloneRange();
+			this.currentRange = range.cloneRange();
 
-			ddt.log( "_saveRange(): saving currentRange: ", currentRange );
+			ddt.log( "_saveRange(): saving currentRange: ", this.currentRange );
 			},
 
 		/**
@@ -1499,7 +1493,7 @@ if ( typeof( ddt ) == 'undefined' )
 
 			trigger_entry = this._isTrigger( caret.dom_node, caret.offset - 1 );
 
-			current_trigger = trigger_entry;
+			this.current_trigger = trigger_entry;
 
 			return trigger_entry;
 
@@ -1814,7 +1808,7 @@ if ( typeof( ddt ) == 'undefined' )
 
 			trigger_entry.startOffset = trigger_start.offset;
 
-			current_trigger = trigger_entry;
+			this.current_trigger = trigger_entry;
 
 			return trigger_entry;
 
@@ -3463,7 +3457,7 @@ if ( typeof( ddt ) == 'undefined' )
 
 			var object = false;
 
-			// ddt.log( "_highlightObject(): top" );
+			ddt.log( "_highlightObject(): top with this", this );
 
 			this._unHighlightObjects( this.element );
 
@@ -3521,13 +3515,15 @@ if ( typeof( ddt ) == 'undefined' )
 			//
 			// We are just interested in elements in this case, ok to loop over children instead of childNodes
 
+			var rich_textarea = this;
+
 			object.children().each( function( index )
 				{
 
 				// we only recurse into elements that are NOT one of our objects, identified by 
 				// the data-value attribute.
 
-				if ( richtext_widget._isEmbeddedObject( $(this).get(0) ) )
+				if ( rich_textarea._isEmbeddedObject( $(this).get(0) ) )
 					{
 
 					// ddt.log( "found element with data value: ", $(this).attr( 'data-value' ) );
@@ -3545,7 +3541,7 @@ if ( typeof( ddt ) == 'undefined' )
 
 					// ddt.log( "unHighlightObjects(): recursing into '" + $( this ).prop( 'nodeName' ) + "'" );
 
-					richtext_widget._unHighlightObjects( $( this ) );
+					rich_textarea._unHighlightObjects( $( this ) );
 
 					}
 
@@ -4187,7 +4183,7 @@ if ( typeof( ddt ) == 'undefined' )
 		_insertSelection: function( trigger, selection )
 			{
 
-			ddt.log( "_insertSelection(): deleting trigger word based on trigger: ", trigger, " with currentRange ", currentRange );
+			ddt.log( "_insertSelection(): deleting trigger word based on trigger: ", trigger, " with currentRange ", this.currentRange );
 
 			this.replaceWord( trigger, selection.content, selection.value );
 
@@ -4517,13 +4513,13 @@ if ( typeof( ddt ) == 'undefined' )
 
 			this.element.focus();
 
-			ddt.log( "insertObject(): after focus - currentRange is ", currentRange );
+			ddt.log( "insertObject(): after focus - currentRange is ", this.currentRange );
 
 			// we may have lost focus so restore the range we saved after
 			// each keypress. However, we also need to take into the account
 			// that the user may not have clicked in the editable div at all.
 
-			if ( currentRange === false )
+			if ( this.currentRange === false )
 				{
 
 				ddt.log( "insertObject(): currentRange is false" );
@@ -4540,7 +4536,7 @@ if ( typeof( ddt ) == 'undefined' )
 				}
 
 			var sel = RANGE_HANDLER.getSelection();
-			var range = currentRange;
+			var range = this.currentRange;
 
 			sel.removeAllRanges();
 			sel.addRange( range );
@@ -4551,15 +4547,19 @@ if ( typeof( ddt ) == 'undefined' )
 			// this results in an expression error. 
 			//
 			// var node = $( content );
+			//
+			// Trim the content just in case we have a few whitespace characters leading or following.
 
 			var tempDiv = document.createElement('div');
-			tempDiv.innerHTML = content;
+			tempDiv.innerHTML = content.replace(/^[\s\u200B]+|[\s\u200B]+$/g,"");
 
 			// make sure not to include the wrapping temporary div. We make the
 			// assumption here that content is wrapped in some single container tag,
 			// either a div or a span.
 
 			node = $( tempDiv ).contents();
+
+			ddt.log( "insertObject(): node is ", node );
 
 			node.attr( 'data-value', value );
 

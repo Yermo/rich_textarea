@@ -175,6 +175,13 @@ To generate a plain text version of the editable div content use the getTextCont
 alert( $( '#RICH_TEXTAREA' ).rich_textarea( 'getTextContent' ) );
 ```
 
+### Clearing the DIV
+
+To clear the contents of the div, call the clear() method as in:
+
+```javascript
+$( '#RICH_TEXTAREA' ).clear();
+```
 
 ### Status of the Code
 

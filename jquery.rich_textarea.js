@@ -3681,7 +3681,7 @@ if ( typeof( ddt ) == 'undefined' )
 
 						var textnode = this._insertEmptyNode( dom_node, 'before' );
 
-						this._setCaretPositionRelative( textnode, 'end' );
+						this._setCaretPositionRelative( textnode, 'before' );
 
 						return;
 						}

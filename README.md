@@ -15,7 +15,7 @@ This is the second public release and is version alpha 2.
 
 ## Demo
 
-See [this demo](http://miles-by-motorcycle.com/static/rich_textarea/index.php).
+See [this demo](http://miles-by-motorcycle.com/static/rich_textarea/index.html).
 
 
 ## Overview

@@ -3,7 +3,7 @@ rich_textarea: a jQuery UI plugin replacement for a TEXTAREA.
 
 Rich_TextArea is a contenteditable TEXTAREA replacement widget featuring extendable @mention and #tag autocompletions in addition to rich object support.
 
-[Homepage](http://miles-by-motorcycle.com/engineering/rich_textarea/index.html)
+[Homepage](http://miles-by-motorcycle.com/engineering/rich_textarea)
 
 This is the second public release and is version alpha 2.
 

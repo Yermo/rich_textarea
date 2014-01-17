@@ -10,12 +10,12 @@ This is the second public release and is version alpha 2.
 
 ## Screenshot
 
-![Screenshot](http://miles-by-motorcycle.com/static/rich_textarea/rich_textarea_screenshot.png)
+![Screenshot](http://miles-by-motorcycle.com/static/rich_textarea/images/rich_textarea_screenshot.png)
 
 
 ## Demo
 
-See [this demo](http://miles-by-motorcycle.com/static/rich_textarea/rich_textarea/index.php).
+See [this demo](http://miles-by-motorcycle.com/static/rich_textarea/index.php).
 
 
 ## Overview

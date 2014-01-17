@@ -2920,7 +2920,7 @@ if ( typeof( ddt ) == 'undefined' )
 			// the start_location may be an element (object) which we do not want to delete here.
 			// this method should just delete the zerospace chars.
 
-			if ( start_location.dom_node.nodetype != 3 )
+			if ( start_location.dom_node.nodeType != 3 )
 				{
 				range.setStartAfter( start_location.dom_node );
 				}
@@ -2964,25 +2964,21 @@ if ( typeof( ddt ) == 'undefined' )
 			var sel = null;
 			var range = null;
 
-			location = this._getCaretPosition();
+			start_location = this._getCaretPosition();
 
-			dom_node = location.dom_node;
-
-			ddt.log( "_deleteZeroSpace(): current dom node is :", dom_node );
+			ddt.log( "_deleteZeroSpace(): current dom node is :", start_location.dom_node );
 
 			// Unlike backspace, all we care about are non-printing text nodes.
 
-			if ( dom_node.nodeType != 3 )
+			if ( start_location.dom_node.nodeType != 3 )
 				{
 				
-				ddt.log( "_deleteZeroSpace(): deleting NON-BR '" + dom_node.nodeName + "' node" );
+				ddt.log( "_deleteZeroSpace(): deleting NON-TEXT '" + start_location.dom_node.nodeName + "' node" );
 
 				return false;
 				}
 			
 			// we have a text node.
-
-			start_location = this._getCaretPosition();
 
 			if (( end_location = this._walkTextNode( start_location.dom_node, start_location.offset, 'right' )) == false )
 				{
@@ -2991,7 +2987,18 @@ if ( typeof( ddt ) == 'undefined' )
 				return false;
 				}
 
-			ddt.log( "_deleteZeroSpace(): got end_location: ", end_location );
+			ddt.log( "_deleteZeroSpace(): got start and end_location: ", start_location, end_location );
+
+			// if we did not skip over any non-printing characters, do nothing.
+			// NOTE: === comparison here checks to see if the two nodes are the same node, not just the same type.
+
+			if (( start_location.dom_node === end_location.dom_node ) && ( start_location.offset == end_location.offset ))
+				{
+
+				ddt.log( "_deleteZeroSpace(): _walkTextNode() did not move cursor" );
+
+				return false;
+				}
 
 			sel = RANGE_HANDLER.getSelection();
 			range = CREATERANGE_HANDLER.createRange();
@@ -3001,12 +3008,14 @@ if ( typeof( ddt ) == 'undefined' )
 			// the end_location may be an element (object) which we do not want to delete here.
 			// this method should just delete the zerospace chars.
 
-			if ( end_location.dom_node.nodetype != 3 )
+			if ( end_location.dom_node.nodeType != 3 )
 				{
+				ddt.log( "_deleteZeroSpace(): setting end of range before dom_node" );
 				range.setEndBefore( end_location.dom_node );
 				}
 			else
 				{
+				ddt.log( "_deleteZeroSpace(): setting end of range at offset '" + end_location.offset + "'" );
 				range.setEnd( end_location.dom_node, end_location.offset );
 				}
 
@@ -3581,6 +3590,8 @@ if ( typeof( ddt ) == 'undefined' )
 
 						if ( caret_position == dom_node.nodeValue.length )
 							{
+
+							ddt.log( "_walkTextNode(): we are at the end of the string." );
 		
 							if ( dom_node.nextSibling == null )
 								{
@@ -3658,7 +3669,7 @@ if ( typeof( ddt ) == 'undefined' )
 						if ( dom_node.nodeValue.charAt( caret_position ) != '\u200B' )
 							{
 
-							ddt.log( "_walkTextNode(): Not a zero width space. Found '" + dom_node.nodeValue.charCodeAt( caret_position ) + "'" );
+							ddt.log( "_walkTextNode(): Not a zero width space at position '" + caret_position + "'. Found '" + dom_node.nodeValue.charCodeAt( caret_position ) + "'" );
 
 							return { dom_node: dom_node, offset: caret_position, type: 'text', preventDefault: false, checkForObjects: true };
 
@@ -4173,7 +4184,7 @@ if ( typeof( ddt ) == 'undefined' )
 
 				range.setEnd( textnode, 1 );
 
-				}
+				}                      
 			else if ( dom_node.nextSibling.nodeType != 3 )
 				{
 
@@ -4872,9 +4883,13 @@ if ( typeof( ddt ) == 'undefined' )
 			},	// end of insertObject()
 
 		/**
-		* returns plain text contents of the editable area with newlines preserved.
+		* returns plain text contents of the editable area with BR's turned to newlines.
 		*
-		* Returns the contents of the editable div in plaintext with newlines 
+		* Returns the contents of the editable div in plaintext with BR tags (and other
+		* block level elements, converted to newlines.
+		*
+		* Spurious newlines are stripped prior to conversion.
+		*
 		* preserved and any embedded objects in the form $[[VALUE]] where VALUE is the GUID
 		* of the embedded object (or other uniquely identifying value)
 		*
@@ -4948,10 +4963,15 @@ if ( typeof( ddt ) == 'undefined' )
 					{
 
 					ddt.log( "text or cdata found" );
+
 					// text or cdata node
 
-					text_string += elem.nodeValue;
-					
+					// first strip out any newlines that might be in the content. Might be from
+					// copy paste, etc. The only newlines present in the output should be ones that
+					// reflect the formatting the user sees in the browser.
+
+					text_string += elem.nodeValue.replace( /[\n]/gm, '' );
+
 					}
 				else if ( jQuery.inArray( elem.nodeName, break_tags ) != -1 )
 					{

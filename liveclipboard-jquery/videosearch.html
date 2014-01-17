@@ -1,0 +1,96 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <title>Live Clipboard jQuery - Video Search Sample</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" >
+    <script type="text/javascript" src="./js/jquery.js"></script>
+    <script type="text/javascript" src="./js/liveclip.jquery.js"></script>
+    <script type="text/javascript" src="./js/videosearch.js"></script>
+    <style type="text/css">
+#query {
+  width : 300px;
+}
+#submit {
+  width : 60px;
+}
+#searchArea {
+  padding : 10px;
+  background-color : #eeeeee;
+}
+h2 {
+  font-size : 18px;
+  margin : 0px;
+}
+h3 {
+  font-size : 14px;
+  margin : 5px 0px;
+}
+#searchForm {
+  padding-bottom : 20px;
+}
+#searchResultContainer {
+  padding : 30px 10px;
+  background-color : #ffffff;
+}
+#searchResult {
+  width : 370px;
+}
+#searchResult .tile {
+  float : left;
+  width : 90px;
+  height : 90px;
+  overflow : hidden;
+  border : 1px solid #cccccc;
+}
+#searchResult .tile .tile-inner {
+  margin : 5px;
+  width : 80px;
+  height : 60px;
+  overflow : hidden;
+}
+#searchResult .tile .title {
+  margin : 5px;
+  width : 80px;
+  height : 15px;
+  font-size : 10px;
+  overflow : hidden;
+  white-space : nowrap;
+}
+#searchResult .selected {
+  background-color : #aaccff; !important
+  border : 1px solid #88aaff; !important
+}
+#searchResult img {
+  width : 80px;
+}
+.tile-clipboard {
+  cursor : pointer
+}
+    </style>
+  </head>
+  <body>
+    <table>
+      <tr>
+        <td width="400" valign="top">
+          <div id="searchArea">
+            <div id="searchForm">
+              <h2>Search and Select Result</h2>
+              <input type="text" value="iPhone" id="query">
+              <input type="button" value="Search" id="submit">
+            </div>
+            <div id="searchResultContainer">
+              <div id="searchResult"></div>
+              <div style="clear:both"></div>
+              <h3>Right-click to copy/cut/delete selections or paste copied result</h3>
+            </div>
+          </div>
+        </td>
+        <td valign="top">
+          <h2>Copy and Paste to Spreadsheet</h2>
+          <iframe style="width:600px;height:400px" src="http://spreadsheets.google.com/ccc?new"></iframe>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>
+

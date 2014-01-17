@@ -1,0 +1,83 @@
+<html>
+  <head>
+    <title>Live Clipboard jQuery - Demo</title>
+		<script type="text/javascript" src="./js/jquery.js"></script>
+    <script type="text/javascript" src="./js/liveclip.jquery.js"></script>
+    <script type="text/javascript">
+//$.liveclip.debug = true;
+//$.liveclip.autoTrack = true;
+
+$(function() {
+
+  var options = {
+    active : function() {
+      return $(this).hasClass('selected');
+    },
+    copy : function() {
+      var data = [];
+      $(this).parent().find('> .selected').each(function() { data.push($(this).text()) })
+      return data.join('\n');
+    },
+    del : function() {
+      $(this).parent().find('> .selected').removeClipboard().remove();
+      $.trackClipboards();
+    }
+  };
+
+  $('#cliproot')
+    .clipboard({ 
+      paste : function(data) {
+        data = data.split('\n');
+        for (var i=0; i < data.length; i++) {
+          $('<div />').addClass('clippable').text(data[i]).appendTo(this)
+                      .clipboard(options);
+        }
+        $.trackClipboards();
+      }
+    })
+    .scroll(function() { $.trackClipboards() });
+
+  $('.clippable')
+    .clipboard(options)
+    .live('click', function() { $(this).toggleClass('selected') })
+    .live('mouseover', function() { $(this).addClass('highlight') })
+    .live('mouseout', function() { $(this).removeClass('highlight') })
+
+});
+    </script>
+    <style type="text/css">
+#cliproot {
+  position : absolute;
+  top : 20px;
+  left : 20px;
+  width : 400px;
+  height : 400px;
+  border : 2px solid #222222;
+  padding : 10px 30px;
+  overflow : auto;
+}
+.clippable {
+  margin : 5px;
+  padding : 3px 5px;
+  background-color : #eeeeee;
+  border : 1px solid #888888;
+  width : 380px;
+}
+.highlight {
+  background-color : #ffff99; !important
+}
+.selected {
+  background-color : #ffaaaa; !important
+}
+    </style>
+	</head>
+	<body>
+    
+    <div id="cliproot">
+      <div class="clippable">hello, world</div>
+      <div class="clippable">lorem, ipsum</div>
+      <div class="clippable">foo, bar, goo</div>
+    </div>
+	</body>
+</html>
+

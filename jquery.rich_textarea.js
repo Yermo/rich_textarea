@@ -1,5 +1,5 @@
 /**
-* Copyright (c) 2013 DTLink, LLC (http://www.a-software-guy.com)
+* Copyright (c) 2014 Flying Brick Software, LLC (http://www.flyingbricksoftware.com)
 *
 * Permission  is  hereby  granted,  free of charge, to any person
 * obtaining  a copy of this software and associated documentation
@@ -75,21 +75,24 @@ if ( typeof( ddt ) == 'undefined' )
 *		callback:	callback to execute is a patten is matched. Accepts a word_entry object as a 
 *						parameter which include startNode, startOffset, endNode, endOffset and word keys.
 *
-* @author <a href="http://a-software-guy.com/yermo">Yermo Lamers</a>, Co-Founder, DTLink, LLC
+* NOTE: The current version normalizes all browsers to use <BR> for newlines. There is still code left over from the previous
+* NOTE: attempt to handle each browser types idiosyncracies. See comments in code.
 *
-* @copyright DTLink, LLC
+* @author <a href="http://miles-by-motorcycle.com/yermo">Yermo Lamers</a>, Co-Founder, Flying Brick Software, LLC
+*
+* @copyright Flying Brick Software, LLC
 * @license MIT License http://www.opensource.org/licenses/mit-license.php
 *
-* @version 2013-01 Alpha 1
+* @version 2014-01 Alpha 2
 *
 * @see https://github.com/Yermo/rich_textarea
 *
-* @see http://a-software-guy.com
+* @see http://miles-by-motorcycle.com/static/rich_textarea/index.html
 *
 * @see http://api.jqueryui.com/jQuery.widget/
 *
-* @see http://a-software-guy.com/2013/01/the-rich_textarea-jquery-plugin-a-relatively-non-technical-description/
-* @see http://a-software-guy.com/2013/01/you-cant-select-that-webkit-browser-selections-and-ranges-in-chrome-and-safari/
+* @see http://miles-by-motorcycle.com/fv-b-8-664/the-richtextarea-jquery-plugin-----a-relatively-non-technical-description-
+* @see http://miles-by-motorcycle.com/fv-b-8-665/you-can---t-select-that-----webkit-browser-selections-and-ranges-in-chrome-and-safari
 *
 * @see http://stackoverflow.com/questions/14027559/event-keycode-character-pointed-to-by-current-selection-when-typing-fast
 * @see http://stackoverflow.com/questions/14098303/how-to-set-caret-cursor-position-in-a-contenteditable-div-between-two-divs
@@ -198,7 +201,7 @@ if ( typeof( ddt ) == 'undefined' )
 				keyup: function( event ) { this._onKeyUp( event ); },
 				keypress: function( event ) { this._onKeyPress( event ); },
 				keydown: function( event ) { this._onKeyDown( event ); },
-				mouseup: function( event ) { this._onMouseUp( event ); }
+				mouseup: function( event ) { this._onMouseUp( event ); },
 				});
 
 			/**
@@ -449,7 +452,15 @@ if ( typeof( ddt ) == 'undefined' )
 
 					ddt.log( "_onKeyDown(): DELETE pressed" );
 
-					// is the previous character an embedded object?
+					var retval = false;
+
+					if (( retval = this._deleteZeroSpace()) == 'stop' )
+						{
+						ddt.log( "_onKeyDown(): DELETEE: stop word encountered. stopping" );
+						return;
+						}
+
+					// is the next character an embedded object?
 
 					ddt.log( "_onKeyDown(): DELETE: checking to see if we are next to an object" );
 
@@ -615,6 +626,23 @@ if ( typeof( ddt ) == 'undefined' )
 						}
 
 					ddt.log( "_onKeyDown(): RIGHT done." );
+
+					break;
+
+				case $.ui.keyCode.ENTER:
+
+					// the trick that took so long to figure out is that we can actually prevent the default
+					// behavior of the browser by preventing the default behavior in the onKeyDown event.
+					//
+					// Without this, each major browser puts different markup in the div. 
+					//
+					// @see _handleEnter()
+
+					this._handleEnter( event );
+
+					// prevent default behavior
+
+					return false;
 
 					break;
 
@@ -886,7 +914,31 @@ if ( typeof( ddt ) == 'undefined' )
 			},	// end of _onMouseUp()
 
 		/**
+		* handle paste events and strip out all HTML tags.
+		*
+		* Removes all HTML formatting tags before pasting the resulting text into the current location in the 
+		* contenteditable div.
+		*
+		* @param {Object} event event object
+		*/
+
+		_onPaste: function( event )
+			{
+
+			ddt.log( "_onPaste(): got paste event ", event );
+
+			ddt.log ( "_onPaste(): target value", event.target.value );
+
+    			// return this.replaceWith(this.html().replace(/<\/?[^>]+>/gi, ''));
+
+			},	// end of _onPaste()
+
+		/**
 		* ensures that spaces before and after elements are still selectable after Enter key pressed.
+		*
+		* NOTE: The majority of this method is deprecated and can be deleted now that we are normalizing
+		* NOTE: the content area to use exclusively <BR>'s for newlines instead of trying to support
+		* NOTE: the native markup entered by each browser.
 		*
 		* Each of the major browser engines handles pressing ENTER in a contenteditable element differently.
 		*
@@ -1203,6 +1255,10 @@ if ( typeof( ddt ) == 'undefined' )
 		*
 		* @see _onKeyUp()
 		* @see http://a-software-guy.com/2013/01/a-summary-of-markup-changes-in-contenteditable-divs-in-webkitfirefox-and-msie/
+		*
+		* @see _handleEnter()
+		*
+		* @todo remove deprecated code since we are now normalizing everything to <BR>'s in _handlerEnter()
 		*/
 
 		_onEnterFixUp: function( event )
@@ -1325,7 +1381,102 @@ if ( typeof( ddt ) == 'undefined' )
 
 				}	// end of the node was a container
 
+//                        $( '.scrollto' ).scrollintoview( { duration: 30 });
+//                        $( '.scrollto' ).get(0).scrollIntoView(false);
+
+			$( '#' +  this.element.attr( 'id' ) ).scrollTo( $( '.scrollto' ), 20 );
+                        $( '.scrollto' ).remove();
+
+			// $( this.tmp_kludge ).scrollintoview();
+
 			},	// end of _onEnterFixUp()
+
+		/**
+		* a simpler approach to handling newlines.
+		*
+		* Instead of attempting to work around all the various contenteditable browser quirks
+		* we can force all browsers to use the same markup by preventing default behavior from 
+		* onKeyDown. 
+		*
+		* By hooking the onKeyDown event and preventing the default action we can manually insert
+		* the break and adjust the cursor positon. This greatly simplifies traversing of the 
+		* content area on delete, backspace, enter and arrow keys.
+		*
+		* NOTE: on the subject of scrolling we are using the jQuery scrollTo plugin. It does not
+		* work with a <BR> so instead we add a temporary <span> which we use as an anchor for
+		* scrolling. This anchor is deleted in _onEnterFixUp().
+		*
+		* @param {Object} event event object
+		*
+		* @return {Boolean} false on error
+		*
+		* @see _onEnterFixUp()
+		*
+		* @todo figure out why sometimes _onEnterFixUp() is not correctly deleting the temporary span.
+		*/
+
+		_handleEnter: function( event )
+			{
+			ddt.log( "top of handleEnter()" );
+
+			event.preventDefault();
+
+			// we insert a <BR> where the cursor currently is. It may, however, be inside a text node
+			// which means the text node needs to be split.
+
+                        var sel = RANGE_HANDLER.getSelection();
+                        var range = this.currentRange;
+
+                        sel.removeAllRanges();
+                        sel.addRange( range );
+
+			var node = $( '<br>' );
+	
+			var dom_node = node.get(0);
+
+                        range.insertNode( node.get(0) );
+                        range.setStartAfter( node.get(0) );
+                        range.setEndAfter( node.get(0) );
+                        range.collapse( false );
+
+                        sel.removeAllRanges();
+                        sel.addRange(range);
+
+                        ddt.log( "handleEnter(): previousSibling is : ", dom_node.previousSibling );
+
+                        // check siblings before and after us, if any.
+                        //
+                        // And, in Chome and possibly other browsers, if this is the first element there is,
+                        // an entirely empty text node is insert at the first position.
+
+                        ddt.log( "handleEnter(): inserting zero width node before selection" );
+
+                        // FIXME: Not sure why, but if I don't force the inclusion of empty nodes even if
+                        // the object is surrounded by text nodes selections break. wtf? (i.e. without this
+                        // inserting object into the middle of text lines fails in Webkit)
+
+                        var textnode = this._insertEmptyNode( dom_node, 'before', true );
+
+                        // if there is no sibling after us or if it's not a text node, add a zero width space.
+
+                        ddt.log( "handleEnter(): inserting zero width node after selection" );
+
+                        var textnode2 = this._insertEmptyNode( dom_node, 'after', true );
+
+                        // FIXME: if this is 0, in Chrome it selects a point in the span.
+
+                        this._selectTextNode( textnode2, 1 );
+
+			// scrollintoview doesn't seem to work with a <BR> so insert an empty span,
+			// scroll to it and then delete the span. Ugly hack.
+
+			var tmp_span = $( '<span class="scrollto"></span>' );
+			
+			tmp_span.insertAfter( node );
+
+			return false;
+
+			},	// end of _handleEnter()
 
 		/**
 		* handle a range selection
@@ -2791,6 +2942,87 @@ if ( typeof( ddt ) == 'undefined' )
 			},	// end of _backspaceZeroSpace()
 
 		/**
+		* delete over zero width space character
+		*
+		* This is the analog to _backspaceZeroSpace for the delete button case.
+		* When delete is pressed, we may have any number of non printing whitespace
+		* characters between us and the next visible item.
+		*
+		* @return {String|Boolean} true if characters were removed, false if nothing changed, 'stop' if we encountered a stop word
+		*/
+
+		_deleteZeroSpace: function()
+			{
+
+			var dom_node = null;
+			var delete_flag = false;
+			var runaway_brake = 0;
+			var caret_position = null;
+			var location = {};
+			var start_location = {};
+			var end_location = {};
+			var sel = null;
+			var range = null;
+
+			location = this._getCaretPosition();
+
+			dom_node = location.dom_node;
+
+			ddt.log( "_deleteZeroSpace(): current dom node is :", dom_node );
+
+			// Unlike backspace, all we care about are non-printing text nodes.
+
+			if ( dom_node.nodeType != 3 )
+				{
+				
+				ddt.log( "_deleteZeroSpace(): deleting NON-BR '" + dom_node.nodeName + "' node" );
+
+				return false;
+				}
+			
+			// we have a text node.
+
+			start_location = this._getCaretPosition();
+
+			if (( end_location = this._walkTextNode( start_location.dom_node, start_location.offset, 'right' )) == false )
+				{
+				ddt.error( "_deleteZeroSpace(): walkTextNode return false" );
+
+				return false;
+				}
+
+			ddt.log( "_deleteZeroSpace(): got end_location: ", end_location );
+
+			sel = RANGE_HANDLER.getSelection();
+			range = CREATERANGE_HANDLER.createRange();
+
+			range.setStart( start_location.dom_node, start_location.offset );
+
+			// the end_location may be an element (object) which we do not want to delete here.
+			// this method should just delete the zerospace chars.
+
+			if ( end_location.dom_node.nodetype != 3 )
+				{
+				range.setEndBefore( end_location.dom_node );
+				}
+			else
+				{
+				range.setEnd( end_location.dom_node, end_location.offset );
+				}
+
+			range.deleteContents();
+
+			sel.removeAllRanges();
+			sel.addRange( range );
+
+			this._saveRange();
+
+			return true;
+
+			},	// end of _deleteZeroSpace()
+
+
+		/**
 		* walk through document nodes forwards or backwards searching for text/object boundaries
 		*
 		* This method walks through DOM nodes in forward or backward directional order searching 
@@ -3706,13 +3938,23 @@ if ( typeof( ddt ) == 'undefined' )
 
 					if ( dom_node.nodeName == 'BR' )
 						{
-						ddt.log( "_setCaretPositionRelative(): 'before' with a 'BR'" );
+						ddt.log( "_setCaretPositionRelative(): 'after' with a 'BR'" );
 
-						var textnode = this._insertEmptyNode( dom_node, 'after' );
+						// FIXME: this is probably a hack. For a BR, position the cursor
+						// before the BR and let the browser move the cursor to the other
+						// side of the BR on it's own. 
 
-						this._setCaretPositionRelative( textnode, 'beginning' );
+						range.setStartBefore( dom_node );
+						range.setEndBefore( dom_node );
 
-						return;
+						range.collapse( false );
+        	
+						sel.removeAllRanges()
+						sel.addRange( range );
+
+						this._saveRange();
+
+						break;
 						}
 
 					range.setStartAfter( dom_node );
@@ -3740,7 +3982,7 @@ if ( typeof( ddt ) == 'undefined' )
 					range.setStart( dom_node, 0 );
 					range.setEnd( dom_node, 0 );
 
-					range.collapse( true );
+					range.collapse( false );
 
 					sel.removeAllRanges()
 					sel.addRange( range );
@@ -4625,7 +4867,7 @@ if ( typeof( ddt ) == 'undefined' )
 
 			// FIXME: if this is 0, in Chrome it selects a point in the span.
 
-		   this._selectTextNode( textnode2, 1 );
+			this._selectTextNode( textnode2, 1 );
 
 			},	// end of insertObject()
 
@@ -4667,6 +4909,10 @@ if ( typeof( ddt ) == 'undefined' )
 
 		/**
 		* private method for recursing through div child elements.
+		*
+		* All browsers are now normalized to using <BR> to denote newlines. 
+		* 
+		* @see _handleEnter()
 		*/
 
 		_getTextWithLineBreaks: function( elems )
@@ -4687,10 +4933,12 @@ if ( typeof( ddt ) == 'undefined' )
 
 				elem = elems[i];
 
-				ddt.log( "elem is " + elem.nodeName );
+				ddt.log( "elem is '" + elem.nodeName + "'" );
 
 				if ( this._isEmbeddedObject( elem ) )
 					{
+
+					ddt.log( "embedded object found" );
 					text_string += "[o=" + $( elem ).attr( 'data-value' ) + "]";
 
 					continue;
@@ -4699,14 +4947,21 @@ if ( typeof( ddt ) == 'undefined' )
 				if (( elem.nodeType == 3 ) || ( elem.nodeType == 4 ))
 					{
 
+					ddt.log( "text or cdata found" );
 					// text or cdata node
 
 					text_string += elem.nodeValue;
 					
 					}
-				else if ( jQuery.inArray( elem.nodeName, break_tags ))
+				else if ( jQuery.inArray( elem.nodeName, break_tags ) != -1 )
 					{
+
+					ddt.log( "break_tag found, adding newline" );
 					text_string += "\n";
+					}
+				else
+					{
+					ddt.log( "other" );
 					}
 
 				if ( elem.nodeType !== 8 ) // comment node

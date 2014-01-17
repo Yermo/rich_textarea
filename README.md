@@ -79,9 +79,10 @@ To use it, first pull in the jquery-ui stylesheet, then load jquery, jquery-ui, 
 ```javascript
 <link rel="stylesheet" type="text/css" href="../jquery-1.8.2/css/smoothness/jquery-ui-1.9.0.custom.css">
 
-<script src="../jquery-1.8.2/js/jquery-1.8.2.js" type="text/javascript"></script>
-<script src="../jquery-1.8.2/js/jquery-ui-1.9.0.custom.js" type="text/javascript"></script>
-<script src="../rangy-1.3alpha.681/rangy-core.js" type="text/javascript"></script>
+<script src="jquery-1.8.2/js/jquery-1.8.2.js" type="text/javascript"></script>
+<script src="jquery-1.8.2/js/jquery-ui-1.9.0.custom.js" type="text/javascript"></script>
+<script src="jquery.scrollTo/jquery.scrollTo.min.js" type="text/javascript"></script>
+<script src="rangy-1.3alpha.681/rangy-core.js" type="text/javascript"></script>
 
 <script src="jquery.ui.autocomplete.html.js" type="text/javascript"></script>
 <script src="jquery.rich_textarea.js" type="text/javascript"></script>

@@ -866,6 +866,15 @@ if ( typeof( ddt ) == 'undefined' )
 
 			var trigger_entry;
 
+			// scrollbar causes this event to fire so we need to guard against the fact
+			// the editable div may not have focus.
+
+			if ( $( '#' +  this.element.attr( 'id' ) ).is(":focus") )
+				{
+				ddt.log( "_onMouseUp(): the div does not have focus" );
+				return true;
+				}
+
 			if ( this._handleRangeSelection() )
 				{
 
@@ -1491,7 +1500,23 @@ if ( typeof( ddt ) == 'undefined' )
 			{
 
 			var sel = RANGE_HANDLER.getSelection();
-			var range = sel.getRangeAt(0);
+
+			// if there's no selection, which can happen if we are scrolling, this will throw
+			// an exception
+
+			try 
+				{
+				var range = sel.getRangeAt(0);
+				}
+			catch( err )
+				{
+				ddt.log( "getRangeAt() failed" );
+
+				// no selected range.
+
+				return false;
+				}
+
 			var start_node = null;
 			var end_node = null;
 
@@ -1560,7 +1585,17 @@ if ( typeof( ddt ) == 'undefined' )
 
 			if ( typeof( range ) == 'undefined' )
 				{
-				var range = RANGE_HANDLER.getSelection().getRangeAt(0);
+
+				// we may have been invoked because of a scrollbar move.
+
+				try
+					{
+					var range = RANGE_HANDLER.getSelection().getRangeAt(0);
+					}
+				catch( err )
+					{
+					return;
+					}
 				}
 
 			this.currentRange = range.cloneRange();
@@ -1627,7 +1662,7 @@ if ( typeof( ddt ) == 'undefined' )
 
 			caret = this._getCaretPosition();
 
-			if ( caret.offset == -1 )
+			if (( ! caret ) || ( caret.offset == -1 ))
 				{
 
 				ddt.log( "_checkForTrigger(): we are not inside a text node. No trigger" );

@@ -193,6 +193,12 @@ if ( typeof( ddt ) == 'undefined' )
 
 			this.do_regex = true;
 
+			/**
+			* make sure we have focus
+			*/
+
+			this.element.focus();
+
 			// widget factory style event binding. First is the name of the 
 			// event mapped onto the string name of the method to call.
 
@@ -1393,8 +1399,14 @@ if ( typeof( ddt ) == 'undefined' )
 //                        $( '.scrollto' ).scrollintoview( { duration: 30 });
 //                        $( '.scrollto' ).get(0).scrollIntoView(false);
 
-			$( '#' +  this.element.attr( 'id' ) ).scrollTo( $( '.scrollto' ), 20 );
-                        $( '.scrollto' ).remove();
+			// if there is a scrollTo span set in handleEnter() invoke scrollTo.
+
+			if ( $( '.scrollto' ).length  )
+				{
+				ddt.log( "calling scrollTo" );
+				$( '#' +  this.element.attr( 'id' ) ).scrollTo( $( '.scrollto' ), 20 );
+        	                $( '.scrollto' ).remove();
+				}
 
 			// $( this.tmp_kludge ).scrollintoview();
 
@@ -1436,7 +1448,48 @@ if ( typeof( ddt ) == 'undefined' )
                         var sel = RANGE_HANDLER.getSelection();
                         var range = this.currentRange;
 
+			ddt.log( "got range and selection", range );
+
                         sel.removeAllRanges();
+
+			if ( ! range )
+				{
+
+				// chances are someone just clicked ENTER.
+
+				var br = $( '<br>' );
+
+				ddt.log( "_handleEnter(): adding br to id = '" + this.element.attr( 'id' ) + "'" );
+
+				var node = $( '#' + this.element.attr( 'id' ) );
+
+				$( br ).appendTo( node  );
+
+	                        var textnode = this._insertEmptyNode( br.get(0), 'before', true );
+	                        var textnode = this._insertEmptyNode( br.get(0), 'after', true );
+
+				// patch in a selection
+
+				range = rangy.createRange();
+				sel = rangy.getSelection();
+
+				range.setStart( textnode, 0 );
+				range.setEnd( textnode, 0 );
+				range.collapse( false );
+
+	                        sel.removeAllRanges();
+        	                sel.addRange(range);
+				sel.refresh();
+
+				ddt.log( "_handleEnter(): range is ", range );
+
+				this.focus();
+
+				// this._saveRange();
+
+				return false;
+				}
+
                         sel.addRange( range );
 
 			var node = $( '<br>' );

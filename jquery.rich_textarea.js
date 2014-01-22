@@ -1636,22 +1636,28 @@ if ( typeof( ddt ) == 'undefined' )
 			{
 			ddt.log( "_saveRange(): before save currentRange: ", this.currentRange );
 
+			// we may have been invoked because of a scrollbar move.
+
 			if ( typeof( range ) == 'undefined' )
 				{
 
-				// we may have been invoked because of a scrollbar move.
-
 				try
 					{
+
+					ddt.log( "_saveRange(): current selection is", RANGE_HANDLER.getSelection() );
+
 					var range = RANGE_HANDLER.getSelection().getRangeAt(0);
 					}
 				catch( err )
 					{
+
+					ddt.log( "_saveRange(): caught exception:" + err );
 					return;
 					}
+
 				}
 
-			this.currentRange = range.cloneRange();
+		        this.currentRange = range.cloneRange();
 
 			ddt.log( "_saveRange(): saving currentRange: ", this.currentRange );
 			},
@@ -3911,12 +3917,13 @@ if ( typeof( ddt ) == 'undefined' )
 			var range = CREATERANGE_HANDLER.createRange();
 
 			range.setStart( text_node, offset );
+			range.setEnd( text_node, offset );
 			range.collapse(true);
 
 			selection.removeAllRanges();
 			selection.addRange( range );
 
-			this._saveRange();
+			this._saveRange( range );
 
 			},
 

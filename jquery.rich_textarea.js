@@ -714,7 +714,7 @@ if ( typeof( ddt ) == 'undefined' )
 
 			var caret = null;
 
-			ddt.log( "_onKeyUp(): with key '" + event.which + "'" );
+			ddt.log( "_onKeyUp(): with key '" + event.which + "':", event );
 
 			// we may have a multiple char selection
 
@@ -1563,7 +1563,7 @@ if ( typeof( ddt ) == 'undefined' )
 				}
 			catch( err )
 				{
-				ddt.log( "getRangeAt() failed" );
+				ddt.log( "getRangeAt() failed - no range?" );
 
 				// no selected range.
 
@@ -1629,6 +1629,7 @@ if ( typeof( ddt ) == 'undefined' )
 		* So the idea is to keep track of the current range whenever the user does anything in 
 		* the div. The range is then restored when insertObject is called.
 		*
+		* @param {Object} range - optional range to set.
 		* @see insertObject()
 		*/
 
@@ -1651,8 +1652,8 @@ if ( typeof( ddt ) == 'undefined' )
 				catch( err )
 					{
 
-					ddt.log( "_saveRange(): caught exception:" + err );
-					return;
+					ddt.log( "_saveRange(): no range? caught exception:" + err );
+					return false;
 					}
 
 				}
@@ -2411,7 +2412,13 @@ if ( typeof( ddt ) == 'undefined' )
 			var dom_node = null;
 			var object = null;
 	
-			location = this._getCaretPosition();
+			// when the editable div is first loaded and we have not yet 
+			// clicked in the window, we may not have a current caret position.
+
+			if ( ! ( location = this._getCaretPosition() ))
+				{	
+				return false;
+				}
 
 			dom_node = location.dom_node;
 
@@ -4369,13 +4376,25 @@ if ( typeof( ddt ) == 'undefined' )
 		_getCaretPosition: function()
 			{
 
-			var sel = RANGE_HANDLER.getSelection();
-			var range = RANGE_HANDLER.getSelection().getRangeAt(0);
 			var dom_node = null;
 			var text_node = null;
 			var embedded_object = null;
 
-			// ddt.log( "_getCaretPosition(): Got range: ", range );
+			var sel = RANGE_HANDLER.getSelection();
+
+			// This may fail if nothing is selected.
+
+			try {
+				var range = RANGE_HANDLER.getSelection().getRangeAt(0);
+
+				}
+			catch( err )
+				{
+				ddt.log( "_getCaretPosition(): unable to get position " + err );
+				return false;
+				}
+
+			ddt.log( "_getCaretPosition(): top" );
 
 			if ( range.collapsed == false )
 				{

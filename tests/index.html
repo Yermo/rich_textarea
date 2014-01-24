@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>QUnit basic example</title>
+	<link rel="stylesheet" href="../3rdparty/qunit/qunit-1.13.0.css">
+	<style>
+		.rich_textarea
+			{
+			width: 400px;
+			height: 200px;
+			}
+	</style>
+</head>
+<body>
+	<div id="qunit"></div>
+
+	<div id="qunit-fixture">
+		<div class="rich_textarea" id="RICH_TEXTAREA" contenteditable="true"></div>
+		<textarea id="RICH_TEXTAREA_formfield"></textarea>
+	</div>
+
+	<script src="../3rdparty/qunit/qunit-1.13.0.js"></script>
+	<script src="../3rdparty/syn/dist/syn.js"></script>
+
+	<script src="../3rdparty/rangy-1.3alpha.681/rangy-core.js"></script>
+	<script src="../3rdparty/jquery-1.8.2/js/jquery-1.8.2.js"></script>
+	<script src="../3rdparty/jquery-1.8.2/js/jquery-ui-1.9.0.custom.js"></script>
+	<script src="../3rdparty/jquery.scrollTo/jquery.scrollTo.js"></script>
+
+	<script src="../ddt.js"></script>
+	<script src="../jquery.rich_textarea.js"></script>
+
+	<script>
+
+		// turn on console debugging messages.
+
+		ddt.on();
+
+		// we need to wait for the robot.js file to load property.
+
+		$( window ).on( 'load', function()
+				{
+
+				// ------------------------------------
+				// basic test to verify qunit is working.
+
+				test( "a basic test example", function() {
+      					var value = "hello";
+      					equal( value, "hello", "We expect value to be hello" );
+    					});
+
+				// ------------------------------------------------
+				// basic test to write something into the text area
+
+				test( "typing test", function() {
+
+					$( '#RICH_TEXTAREA_formfield' ).focus();
+
+					Syn.type( 'a', 'RICH_TEXTAREA_formfield' )
+
+					equal( $( '#RICH_TEXTAREA_formfield' ).val(), 'a', "The value should be 'a'" );
+
+					});	// end of basic typing test.
+
+				// --------------------------------------------------
+				// create a rich text area and type something into it
+
+				test( "rich_textarea test", function() {
+
+					$( '#RICH_TEXTAREA' ).rich_textarea();
+
+					stop();
+					Syn.type( 'a', 'RICH_TEXTAREA', function() {
+
+						equal( $( '#RICH_TEXTAREA' ).rich_textarea( 'getTextContent' ), "a", "The value should be 'a'" );
+
+						Syn.type( 'bcdef', 'RICH_TEXTAREA', function() {
+
+							equal( $( '#RICH_TEXTAREA' ).rich_textarea( 'getTextContent' ), "abcdef", "The value should be 'abcedef'" );
+
+							start();
+
+							});
+
+						});
+
+
+					});
+
+				// ----------------------------------
+				// press ENTER as the first character.
+
+				test( "rich_textarea enter on first character", function() {
+
+					$( '#RICH_TEXTAREA' ).rich_textarea();
+
+                                        stop();
+                                        Syn.type( '\n', 'RICH_TEXTAREA', function() {
+
+						// verify that the editable div contains a <BR> 
+
+                                                equal( $( '#RICH_TEXTAREA' ).html(), "<br>", "The value should be <br>" );
+
+						// verify that the <BR> gets turns to a newline.
+
+                                                equal( $( '#RICH_TEXTAREA' ).rich_textarea( 'getTextContent' ), "\n", "The value should be a newline" );
+
+                                                start();
+
+                                                });
+
+					});
+
+				});
+	</script>
+</body>
+</html>

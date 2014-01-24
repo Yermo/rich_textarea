@@ -1,0 +1,189 @@
+<html>
+<head>
+
+<!--
+/**
+* Copyright (c) 2014 Flying Brick Software, LLC (http://www.flyingbricksoftware.com)
+*
+* Permission  is  hereby  granted,  free of charge, to any person
+* obtaining  a copy of this software and associated documentation
+* files  (the  "Software"),  to  deal  in  the  Software  without
+* restriction,  including  without  limitation the rights to use,
+* copy,  modify,  merge,  publish, distribute, sublicense, and/or
+* sell  copies of the Software, and to permit persons to whom the
+* Software  is  furnished  to  do  so,  subject  to the following
+* conditions:
+*
+* The  above copyright notice and this permission notice shall be
+* included in all copies or substantial portions of the Software.
+*
+* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+* EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+* OF  MERCHANTABILITY,  FITNESS  FOR  A  PARTICULAR  PURPOSE  AND
+* NONINFRINGEMENT.  IN  NO  EVENT  SHALL THE AUTHORS OR COPYRIGHT
+* HOLDERS  BE  LIABLE  FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+* WHETHER  IN  AN  ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+* FROM,  OUT  OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+* OTHER DEALINGS IN THE SOFTWARE.
+*/
+
+/**
+* DEMO of Rich-TextArea jQuery-UI plugin replacement for HTML TEXTAREAs.
+*/
+
+-->
+
+<link rel="stylesheet" type="text/css" href="../3rdparty/jquery-1.8.2/css/smoothness/jquery-ui-1.9.0.custom.css">
+
+<!--
+// to enable debug trace messages include this and call ddt.on() below.
+-->
+
+<script src="../ddt.js" type="text/javascript"></script>
+
+<script src="../3rdparty/jquery-1.8.2/js/jquery-1.8.2.js" type="text/javascript"></script>
+<script src="../3rdparty/jquery-1.8.2/js/jquery-ui-1.9.0.custom.js" type="text/javascript"></script>
+
+<script src="../3rdparty/jquery.scrollTo/jquery.scrollTo.min.js" type="text/javascript"></script>
+
+<script src="../3rdparty/rangy-1.3alpha.681/rangy-core.js" type="text/javascript"></script>
+
+<script src="../jquery.ui.autocomplete.html.js" type="text/javascript"></script>
+<script src="../jquery.rich_textarea.js" type="text/javascript"></script>
+<script src="setup_rich_textarea.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+
+ddt.on();
+
+</script>
+
+<!--
+/**
+* the .highlight class is applied to embedded objects when clicked on or when the cursor is 
+* moved next to them primarily to let the user know that if they BACKSPACE over the object it
+* will get deleted
+* 
+* The rest of the styles are just tweaks for this demo. 
+*/
+-->
+
+<style>
+
+.highlight
+	{
+	background-color: #CCCCCC;
+	}
+
+.content_entry
+	{
+	width: 700px;
+	height: 240px;
+	max-height: 240px;
+	overflow: auto;
+	border: #CCCCCC 1px solid;
+	}
+
+.output
+	{
+	width: 700px;
+	height: 200px;
+	border: #CCCCCC 1px solid;
+	}
+
+.dropdown
+	{
+	width: 30px;
+	height: 18px;
+	margin-right: 3px;
+	}
+
+.inline
+	{
+	width: 45px;
+	height: 28px;
+	vertical-align: middle;
+	margin-right: 3px;
+	}
+
+.pirate
+	{
+	font-weight: bold;
+	font-size: 14px;
+	line-height: 28px;
+	height: 28px;
+	}
+
+.pirate a
+	{
+	text-decoration: none;
+	}
+
+.angry
+	{
+	width: 150px;
+	height: 136px;
+	}
+
+</style>
+</head>
+<body>
+
+<h1>Rich TextArea jQuery plugin - <a href="http://miles-by-motorcycle.com/engineering/rich_textarea">Homepage</a></h1>
+
+<div class="content_entry" id="RICH_TEXTAREA" contenteditable="true"></div>
+
+<hr>
+
+<button id="angrybutton">Angry</button>
+
+<button id="mbymcbutton">MxMC</button>
+
+<hr>
+
+<button id="button">Generate Text</button>
+<br>
+
+<textarea class="output" id="output"></textarea>
+
+<script type="text/javascript">
+
+	setup_rich_textarea();
+
+	// button to add angry guy.
+
+	$( '#angrybutton' ).bind( 'click', function( event )
+		{
+
+		// need this for MSIE. It loses focus when the button is pressed.
+
+		$( '#RICH_TEXTAREA' ).focus();
+
+		$( '#RICH_TEXTAREA' ).rich_textarea( 'insertObject', '<span><img class="angry" src="../images/angry-desk-flip-l.png"></span>', 'angry' );
+		});
+
+	// button to add MxMC Logo.
+
+	$( '#mbymcbutton' ).bind( 'click', function( event )
+		{
+
+		// need this for MSIE. It loses focus when the button is pressed.
+
+		$( '#RICH_TEXTAREA' ).focus();
+
+		$( '#RICH_TEXTAREA' ).rich_textarea( 'insertObject', '<span><img class="mbymc" src="../images/MxMC_small.gif"></span>', 'mbymc' );
+		});
+
+	// button to get contents
+
+	$( '#button' ).bind( 'click', function( event )
+		{
+		$( '#output' ).val( $( '#RICH_TEXTAREA' ).rich_textarea( 'getTextContent' ) );
+		});
+
+	</script>
+
+</body>
+</html>
+
+

@@ -1,0 +1,16 @@
+<!doctype html>
+<html>
+	<body>
+		<input type="submit" id="click"/>
+		<input id="TEST"/>
+		<script src="syn.js"></script>
+		<script type="text/javascript">
+			document.getElementById('click').onclick = function() {
+				console.log('clicked')
+			}
+
+			Syn.click({},'click')
+			Syn.type( 'abc', 'TEST' );
+		</script>
+	</body>
+</html>

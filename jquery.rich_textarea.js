@@ -4373,6 +4373,7 @@ if ( typeof( ddt ) == 'undefined' )
 			var range = RANGE_HANDLER.getSelection().getRangeAt(0);
 			var dom_node = null;
 			var text_node = null;
+			var embedded_object = null;
 
 			// ddt.log( "_getCaretPosition(): Got range: ", range );
 
@@ -4999,7 +5000,9 @@ if ( typeof( ddt ) == 'undefined' )
 
 			ddt.log( "getTextContent(): top" );
 
-			var content = this._getTextWithLineBreaks( this.element );
+			// this.element is a jQuery object.
+
+			var content = this._getTextWithLineBreaks( this.element.get(0).childNodes );
 
 			// strip out all the zero width space characers.
 
@@ -5022,6 +5025,7 @@ if ( typeof( ddt ) == 'undefined' )
 		*
 		* All browsers are now normalized to using <BR> to denote newlines. 
 		* 
+		* @param {Array} elems array of DOM nodes.
 		* @see _handleEnter()
 		*/
 

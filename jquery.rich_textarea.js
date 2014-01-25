@@ -110,8 +110,8 @@ if ( typeof( ddt ) == 'undefined' )
 	var RANGE_HANDLER = rangy;
 	var CREATERANGE_HANDLER = rangy;
 
-	//	var RANGE_HANDLER = document;
-	//	var CREATERANGE_HANDLER = document;
+	// var RANGE_HANDLER = document;
+	// var CREATERANGE_HANDLER = document;
 
 	/**
 	* the rich_textarea widget definition 
@@ -194,20 +194,29 @@ if ( typeof( ddt ) == 'undefined' )
 			this.do_regex = true;
 
 			/**
-			* make sure we have focus
+			* whether or not the autocomplete menu is open
 			*/
 
-			this.element.focus();
+			this.autocomplete_open = false;
+
+			/**
+			* make sure we have focus
+			*
+			* @todo this has negative side effects in too many cases causing the page to scroll when it really shouldn't.
+			*/
+
+			// this.element.focus();
 
 			// widget factory style event binding. First is the name of the 
 			// event mapped onto the string name of the method to call.
 
-			this._on(
+			this._on( 
 				{
 				keyup: function( event ) { this._onKeyUp( event ); },
 				keypress: function( event ) { this._onKeyPress( event ); },
 				keydown: function( event ) { this._onKeyDown( event ); },
 				mouseup: function( event ) { this._onMouseUp( event ); },
+				focus: function( event ) { this._onFocus( event ); }
 				});
 
 			/**
@@ -226,6 +235,44 @@ if ( typeof( ddt ) == 'undefined' )
 				*/
 
 				html: 'html',
+
+				/**
+				* blur event
+				*/
+
+				blur: function( event, ui )
+					{
+					ddt.log( "autocompete blur event" );
+					},
+
+				/**
+				* callback on open
+				*/
+
+				open: function( event, ui )
+					{
+					ddt.log( "autocomplete open: event" );
+					richtext_widget.autocomplete_open = true;
+					},
+
+				/**
+				* callback on close
+				*/
+
+				close: function( event, ui )
+					{
+					ddt.log( "autocomplete close: event" );
+					richtext_widget.autocomplete_open = false;
+					},
+
+				/**
+				* change event handler
+				*/
+
+				change: function( event, ui )
+					{
+					ddt.log( "autocomplete change event" );
+					},
 
 				/**
 				* the autocomplete data source
@@ -297,10 +344,11 @@ if ( typeof( ddt ) == 'undefined' )
 				focus: function( event, ui )
 					{
 
-					// ddt.log( "focus(): got focus event ", event );
+					ddt.log( "focus(): autocomplete got focus event", ui );
 
 					event.preventDefault();
 
+					return false;
 					},
 
 				/**
@@ -383,6 +431,18 @@ if ( typeof( ddt ) == 'undefined' )
 			var object = null;
 			var location = null;
 			var sel = null;
+
+			// if the autocomplete menu is open don't do anything with up and down arrow keys
+
+			if ( this.autocomplete_open )
+				{
+
+				if (( event.which == $.ui.keyCode.UP ) || ( event.which == $.ui.keyCode.DOWN ) || ( event.which == $.ui.keyCode.ENTER ))
+					{
+					event.preventDefault();
+					return true;
+					}
+				}
 
 			// we may have a multiple char selection in which case we want to let the browser handle
 			// it. (see _onKeyUp)
@@ -670,6 +730,18 @@ if ( typeof( ddt ) == 'undefined' )
 
 			ddt.log( "_onKeyPress(): with key '" + event.keyCode + "' event: ", event );
 
+                        // if the autocomplete menu is open don't do anything with up and down arrow keys
+
+                        if ( this.autocomplete_open )
+                                {
+
+                                if (( event.which == $.ui.keyCode.UP ) || ( event.which == $.ui.keyCode.DOWN ) || ( event.which == $.ui.keyCode.ENTER ))
+                                        {
+					event.preventDefault();
+                                        return true;
+                                        }
+                                }
+
 			switch ( event.which )
 				{
 
@@ -715,6 +787,18 @@ if ( typeof( ddt ) == 'undefined' )
 			var caret = null;
 
 			ddt.log( "_onKeyUp(): with key '" + event.which + "':", event );
+
+                        // if the autocomplete menu is open don't do anything with up and down arrow keys
+
+                        if ( this.autocomplete_open )
+                                {
+
+                                if (( event.which == $.ui.keyCode.UP ) || ( event.which == $.ui.keyCode.DOWN ) || ( event.which == $.ui.keyCode.ENTER ))
+                                        {
+					event.preventDefault();
+                                        return true;
+                                        }
+                                }
 
 			// we may have a multiple char selection
 
@@ -875,7 +959,7 @@ if ( typeof( ddt ) == 'undefined' )
 			// scrollbar causes this event to fire so we need to guard against the fact
 			// the editable div may not have focus.
 
-			if ( $( '#' +  this.element.attr( 'id' ) ).is(":focus") )
+			if ( ! $( '#' +  this.element.attr( 'id' ) ).is( ":focus" ) )
 				{
 				ddt.log( "_onMouseUp(): the div does not have focus" );
 				return true;
@@ -927,6 +1011,27 @@ if ( typeof( ddt ) == 'undefined' )
 				}
 
 			},	// end of _onMouseUp()
+
+		/**
+		* handle focus event
+		*
+		* Prevents the selection from becoming invalid if the autocomplete menu is open.
+		*/
+
+		_onFocus: function( event )
+			{
+
+			ddt.log( "focus(): top" );
+
+			if ( this.autocomplete_open )
+				{
+
+				ddt.log( "_onFocus(): autocomplete menu is open" );
+				event.preventDefault();
+				return false;
+				}
+
+			},
 
 		/**
 		* handle paste events and strip out all HTML tags.

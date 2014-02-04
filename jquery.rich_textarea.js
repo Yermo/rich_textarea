@@ -263,6 +263,7 @@ if ( typeof( ddt ) == 'undefined' )
 					{
 					ddt.log( "autocomplete close: event" );
 					richtext_widget.autocomplete_open = false;
+					richtext_widget.do_regex = true;
 					},
 
 				/**
@@ -390,15 +391,6 @@ if ( typeof( ddt ) == 'undefined' )
 
 					richtext_widget.do_regex = false;
 
-					},
-
-				/**
-				* keep track of whether the autocomplete menu is open or closed
-				*/
-
-				close: function( event, ui )
-					{
-					richtext_widget.do_regex = true;
 					}
 
 				});	// end of this.element.autocomplete

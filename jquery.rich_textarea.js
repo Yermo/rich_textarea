@@ -948,6 +948,10 @@ if ( typeof( ddt ) == 'undefined' )
 
 			var trigger_entry;
 
+			// make sure the autocomplete menu is closed.
+
+			this.element.autocomplete( 'close' );
+
 			// scrollbar causes this event to fire so we need to guard against the fact
 			// the editable div may not have focus.
 

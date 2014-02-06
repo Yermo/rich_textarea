@@ -107,11 +107,11 @@ if ( typeof( ddt ) == 'undefined' )
 	* placeholder for rangy or native (document) selections.
 	*/
 
-	var RANGE_HANDLER = rangy;
-	var CREATERANGE_HANDLER = rangy;
+//	var RANGE_HANDLER = rangy;
+//	var CREATERANGE_HANDLER = rangy;
 
-	// var RANGE_HANDLER = document;
-	// var CREATERANGE_HANDLER = document;
+	var RANGE_HANDLER = document;
+	var CREATERANGE_HANDLER = document;
 
 	/**
 	* the rich_textarea widget definition 
@@ -216,7 +216,10 @@ if ( typeof( ddt ) == 'undefined' )
 				keypress: function( event ) { this._onKeyPress( event ); },
 				keydown: function( event ) { this._onKeyDown( event ); },
 				mouseup: function( event ) { this._onMouseUp( event ); },
-				focus: function( event ) { this._onFocus( event ); }
+				focus: function( event ) { this._onFocus( event ); },
+				paste: function( event ) { this._onPaste( event ); },
+				prepaste: function( event ) { this._onPrePaste( event ); },
+				postpaste: function( event ) { this._onPostPaste( event ); }
 				});
 
 			/**
@@ -1030,12 +1033,19 @@ if ( typeof( ddt ) == 'undefined' )
 			},
 
 		/**
-		* handle paste events and strip out all HTML tags.
+		* handle paste events.
 		*
-		* Removes all HTML formatting tags before pasting the resulting text into the current location in the 
-		* contenteditable div.
+		* Handling paste events is not nearly as straight forward as one would like it 
+		* to be.
+		*
+		* We cannot get the pasted text ahead of time so the algorithm is:
+		*
+		* Before the paste, tag all existing elements in the div with a unique data attribute.
+		* After the paste we can use the data attribute to determine which elements are
+		* new in the div.
 		*
 		* @param {Object} event event object
+		* @link http://stackoverflow.com/questions/2176861/javascript-get-clipboard-data-on-paste-event-cross-browser/2177059#2177059
 		*/
 
 		_onPaste: function( event )
@@ -1043,11 +1053,85 @@ if ( typeof( ddt ) == 'undefined' )
 
 			ddt.log( "_onPaste(): got paste event ", event );
 
-			ddt.log ( "_onPaste(): target value", event.target.value );
+			//$( this ).trigger("prepaste");
+
+			this._onPrePaste( event );
+
+			var self = this;
+
+			// the callback timeout here is not perfect. If the browser is
+			// especially slow this may fail.
+
+			setTimeout( function() 
+				{ 
+				self._onPostPaste( event ); 
+				}, 75);
+
+			// this._checkRegexes( event );
+
+			return true;
 
     			// return this.replaceWith(this.html().replace(/<\/?[^>]+>/gi, ''));
 
 			},	// end of _onPaste()
+
+		/**
+		* synthetic event handler for prepasting
+		*/
+
+		_onPrePaste: function( event )
+			{
+
+			ddt.log( "_onPrePaste(): top" );
+
+			$(this.element).find("*").each(function()
+				{
+			        //var tmp=new Date.getTime();
+				$(this).data("uid", '123');
+				});
+			},
+
+		/**
+		* synthetic event handler for post pasting
+		*
+		* strip out html tags. handle regexes.
+		*/
+
+		_onPostPaste: function( event )
+			{
+
+			ddt.log( "_onPostPaste() top" );
+
+			var rich_textarea = this;
+
+			// replace any html tags but ignore text nodes
+
+			this.element.find("*").each(function()
+				{
+				if(!$(this).data("uid"))
+					{
+
+					ddt.log( "Found a new element '" + $(this).get(0).tagName + "' of type", $(this).get(0).nodeType );
+
+					// KLUDGE: links copied from a browser bar are wrapped in <a> tags but if we strip the
+					// a tags the selection is lost. So for the moment we'll leave the a tag in place.
+
+					if (( $(this).get(0).nodeType != 3 ) && ( $(this).get(0).nodeName != 'A' ))
+						{
+
+						// This unfortunately messes up the selection.
+
+						$(this).replaceWith( $(this).text() );
+						}
+
+					// $(this).removeClass();
+					// $(this).removeAttr("style id");
+					}
+				});
+
+			this._checkRegexes( event );
+
+			},
 
 		/**
 		* ensures that spaces before and after elements are still selectable after Enter key pressed.

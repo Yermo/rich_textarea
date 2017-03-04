@@ -64,16 +64,21 @@ if ( typeof( ddt ) == 'undefined' )
 *
 *	Each object has keys:
 *
-*		trigger:		single trigger character that marks the start of a trigger word. (e.g. @, #, etc)
+*		trigger:	single trigger character that marks the start of a trigger word. (e.g. @, #, etc)
 *		callback:	callback invoked on autocomplete. It expects two parameters, the string that
-*						triggered the autocomplete and the autcomplete response callback to pass the 
-*						autocompletions to per jQuery autocomplete docs. {@link http://api.jqueryui.com/autocomplete/#option-source}
+*				triggered the autocomplete and the autcomplete response callback to pass the 
+*				autocompletions to per jQuery autocomplete docs. {@link http://api.jqueryui.com/autocomplete/#option-source}
 *
 *	regex_definitions is an array of objects
 *
 *		regex:		regular expression to match againt words entered into the area
 *		callback:	callback to execute is a patten is matched. Accepts a word_entry object as a 
-*						parameter which include startNode, startOffset, endNode, endOffset and word keys.
+*				parameter which include startNode, startOffset, endNode, endOffset and word keys.
+*
+* EVENTS:
+*
+*	enter.rich_textarea	raised on the rich textarea div when the user presses the ENTER key. Useful for setting
+*				rich_textarea up as a search box.
 *
 * NOTE: The current version normalizes all browsers to use <BR> for newlines. There is still code left over from the previous
 * NOTE: attempt to handle each browser types idiosyncracies. See comments in code.
@@ -1067,7 +1072,7 @@ if ( typeof( ddt ) == 'undefined' )
 				self._onPostPaste( event ); 
 				}, 75);
 
-			// this._checkRegexes( event );
+			this._checkRegexes( event );
 
 			return true;
 
@@ -1100,7 +1105,9 @@ if ( typeof( ddt ) == 'undefined' )
 		_onPostPaste: function( event )
 			{
 
-			ddt.log( "_onPostPaste() top" );
+			var caret = this._getCaretPosition();
+
+			ddt.log( "_onPostPaste() top with caret position", caret );
 
 			var rich_textarea = this;
 
@@ -1111,23 +1118,37 @@ if ( typeof( ddt ) == 'undefined' )
 				if(!$(this).data("uid"))
 					{
 
-					ddt.log( "Found a new element '" + $(this).get(0).tagName + "' of type", $(this).get(0).nodeType );
+					ddt.log( "_onPostPaste(): Found a new element '" + $(this).get(0).tagName + "' of type", $(this).get(0).nodeType );
 
 					// KLUDGE: links copied from a browser bar are wrapped in <a> tags but if we strip the
 					// a tags the selection is lost. So for the moment we'll leave the a tag in place.
 
-					if (( $(this).get(0).nodeType != 3 ) && ( $(this).get(0).nodeName != 'A' ))
+//					if (( $(this).get(0).nodeType != 3 ) && ( $(this).get(0).nodeName != 'A' ))
+					if ( $(this).get(0).nodeType != 3 )
 						{
 
-						// This unfortunately messes up the selection.
+						// This unfortunately messes up the selection. So we need
+						// to pull out the text and create a node, insert the node
+						// and jump after it.
 
-						$(this).replaceWith( $(this).text() );
+						var text_node = document.createTextNode( $(this).text() );
+
+						$(this).replaceWith( text_node );
+
+						var caret = rich_textarea._getCaretPosition();
+						ddt.log( "_onPostPaste(): caret position is now:", caret );
+
+						rich_textarea._setCaretPositionRelative( text_node, 'after' )
+
 						}
 
 					// $(this).removeClass();
 					// $(this).removeAttr("style id");
 					}
 				});
+
+			var caret = rich_textarea._getCaretPosition();
+			ddt.log( "_onPostPaste(): caret position is now:", caret );
 
 			this._checkRegexes( event );
 
@@ -1612,6 +1633,9 @@ if ( typeof( ddt ) == 'undefined' )
 		* work with a <BR> so instead we add a temporary <span> which we use as an anchor for
 		* scrolling. This anchor is deleted in _onEnterFixUp().
 		*
+		* To allow for rich_textarea to more easily be used as a search box, before processing the
+		* submit, we raise a 'enter.rich_textarea' event.
+		*
 		* @param {Object} event event object
 		*
 		* @return {Boolean} false on error
@@ -1626,6 +1650,22 @@ if ( typeof( ddt ) == 'undefined' )
 			ddt.log( "top of handleEnter()" );
 
 			event.preventDefault();
+
+			// give callbacks a chance. We may be a search box in which case the caller will want 
+			// to hook the enter.rich_textarea event.
+
+			var e = jQuery.Event( "enter.rich_textarea" );
+
+			this.element.trigger( e );
+
+			// if a callback has handled this we don't do anything further
+
+			if ( e.isDefaultPrevented() ) {
+
+				console.error( "event is defaultPrevented" );
+
+				return;
+			}
 
 			// we insert a <BR> where the cursor currently is. It may, however, be inside a text node
 			// which means the text node needs to be split.
@@ -1997,7 +2037,7 @@ if ( typeof( ddt ) == 'undefined' )
 			if ( word_entry = this._getWord( caret.dom_node, caret.offset - 1 ) )
 				{
 
-				ddt.log( "_checkRegexes(): found word '" + word_entry.word + "'" );
+				ddt.log( "_checkRegexes(): found word '" + word_entry.word + "' and we have '" + this.options.regexes.length + "' regexes defined" );
 
 				// loop through the regex definitions checking each regular expression. If
 				// we find a match, run the callback. We only run one match, the first match having
@@ -2011,7 +2051,7 @@ if ( typeof( ddt ) == 'undefined' )
 					if ( word_entry.word.match( this.options.regexes[i].regex ) )
 						{
 
-						ddt.log( "_checkRegexes(): found match at offset '" + i + "'" );
+						ddt.log( "_checkRegexes(): found match at offset '" + i + "' calling callback" );
 
 						this.options.regexes[i].callback( word_entry );
 
@@ -4317,23 +4357,6 @@ if ( typeof( ddt ) == 'undefined' )
 
 				}
 
-			// HACK: with nested DIV's in Mozilla it's possible to move the cursor to the end position
-			// no-man's land in the editable DIV. In this case we'll insert a zero-width char at the end
-			// and adjust the range accordingly.
-
-			if (( range.startContainer.nodeName == 'DIV' ) &&
-				( $( range.startContainer ).attr( 'id' ) == this.element.attr( 'id' ) ) &&
-				( range.startOffset == range.startContainer.childNodes.length ))
-				{
-
-				ddt.error( "_setCaretPositionRelative(): attempted to break out of div." );
-
-				var textnode = this._insertEmptyNode( range.startContainer, 'child' );
-
-				this._selectTextNode( textnode, 0 );
-
-				}
-
 			ddt.log( "_setCaretPositionRelative(): result range is: ", range );
 
 			},	
@@ -5306,6 +5329,9 @@ if ( typeof( ddt ) == 'undefined' )
 
 		clear: function()
 			{
+
+			ddt.log( "in clear" );
+
 			this.element.empty();
 			},
 
@@ -5327,7 +5353,27 @@ if ( typeof( ddt ) == 'undefined' )
 
 			this.element.focus();
 
-			}
+			},
+
+		/**
+		* sets the supported emoticons list
+		*/
+
+		setEmoticons: function( emoticons ) {
+
+			this.emoticons = emoticons;
+
+		},
+
+		/**
+		* retrieves the emoticons list
+		*/
+
+		getEmoticons: function() {
+
+			return this.emoticons;
+
+		}
 
 	    });	// end of $.widget() parameter list.
 

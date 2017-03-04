@@ -25,10 +25,8 @@
 
 // if ddt is not included add an empty shim.
 
-if ( typeof( ddt ) == 'undefined' )
-	{
-	var ddt = 
-		{
+if ( typeof( ddt ) == 'undefined' ) {
+	var ddt = {
 
 		on: function() {},
 		off: function() {},
@@ -36,9 +34,9 @@ if ( typeof( ddt ) == 'undefined' )
 		warn:	function() {},
 		error: function() {}
 
-		};
+	};
 
-	}
+}
 
 // --------------------------------------------------------------
 
@@ -81,14 +79,14 @@ if ( typeof( ddt ) == 'undefined' )
 *				rich_textarea up as a search box.
 *
 * NOTE: The current version normalizes all browsers to use <BR> for newlines. There is still code left over from the previous
-* NOTE: attempt to handle each browser types idiosyncracies. See comments in code.
+* attempt to handle each browser types idiosyncracies. See comments in code.
 *
 * @author <a href="http://miles-by-motorcycle.com/yermo">Yermo Lamers</a>, Co-Founder, Flying Brick Software, LLC
 *
 * @copyright Flying Brick Software, LLC
 * @license MIT License http://www.opensource.org/licenses/mit-license.php
 *
-* @version 2014-01 Alpha 2
+* @version 2017-03 Alpha 3
 *
 * @see https://github.com/Yermo/rich_textarea
 *
@@ -122,11 +120,9 @@ if ( typeof( ddt ) == 'undefined' )
 	* the rich_textarea widget definition 
 	*/
 
-	$.widget( 'ui.rich_textarea', 
-		{
+	$.widget( 'ui.rich_textarea', {
 
-		options: 
-			{
+		options: {
 
 			/**
 			* definition of autocomplete triggers.
@@ -150,7 +146,7 @@ if ( typeof( ddt ) == 'undefined' )
 
 			regexes: []
 
-			},
+		},
 
 		/**
 		* jQuery UI widget factory create method.
@@ -158,8 +154,7 @@ if ( typeof( ddt ) == 'undefined' )
 		* @see http://api.jqueryui.com/jQuery.widget/
 		*/
 
-		_create: function() 
-			{
+		_create: function() {
 
 			// fun with javascript scoping rules.
 
@@ -215,8 +210,7 @@ if ( typeof( ddt ) == 'undefined' )
 			// widget factory style event binding. First is the name of the 
 			// event mapped onto the string name of the method to call.
 
-			this._on( 
-				{
+			this._on({
 				keyup: function( event ) { this._onKeyUp( event ); },
 				keypress: function( event ) { this._onKeyPress( event ); },
 				keydown: function( event ) { this._onKeyDown( event ); },
@@ -225,7 +219,7 @@ if ( typeof( ddt ) == 'undefined' )
 				paste: function( event ) { this._onPaste( event ); },
 				prepaste: function( event ) { this._onPrePaste( event ); },
 				postpaste: function( event ) { this._onPostPaste( event ); }
-				});
+			});
 
 			/**
 			* bind the standard jquery-ui autocomplete to our element
@@ -233,8 +227,7 @@ if ( typeof( ddt ) == 'undefined' )
 			* (not sure if using this.element here is an acceptable way of getting at the element.)
 			*/
 
-			this.element.autocomplete(
-				{
+			this.element.autocomplete({
 
 				/**
 				* add support to format dropdown entries in HTML so we can embed images.
@@ -248,40 +241,36 @@ if ( typeof( ddt ) == 'undefined' )
 				* blur event
 				*/
 
-				blur: function( event, ui )
-					{
+				blur: function( event, ui ) {
 					ddt.log( "autocompete blur event" );
-					},
+				},
 
 				/**
 				* callback on open
 				*/
 
-				open: function( event, ui )
-					{
+				open: function( event, ui ) {
 					ddt.log( "autocomplete open: event" );
 					richtext_widget.autocomplete_open = true;
-					},
+				},
 
 				/**
 				* callback on close
 				*/
 
-				close: function( event, ui )
-					{
+				close: function( event, ui ) {
 					ddt.log( "autocomplete close: event" );
 					richtext_widget.autocomplete_open = false;
 					richtext_widget.do_regex = true;
-					},
+				},
 
 				/**
 				* change event handler
 				*/
 
-				change: function( event, ui )
-					{
+				change: function( event, ui ) {
 					ddt.log( "autocomplete change event" );
-					},
+				},
 
 				/**
 				* the autocomplete data source
@@ -303,8 +292,7 @@ if ( typeof( ddt ) == 'undefined' )
 				* @todo make minLength configurable. 
 				*/
 
-				source: function( request, response )
-					{
+				source: function( request, response ) {
 
 					ddt.log( "source(): got source event" );
 
@@ -312,13 +300,12 @@ if ( typeof( ddt ) == 'undefined' )
 
 					var trigger_entry = richtext_widget._checkForTrigger();
 
-					if (( trigger_entry == false ) || ( trigger_entry == null ))
-						{
+					if (( trigger_entry == false ) || ( trigger_entry == null )) {
 
 						ddt.log( "source(): no trigger" );
 
 						return;
-						}
+					}
 
 					ddt.log( "source(): got source event with trigger ", trigger_entry );
 
@@ -327,8 +314,7 @@ if ( typeof( ddt ) == 'undefined' )
 					// as 2 here for now.
 
 					if (( trigger_entry != false ) &&
-						( trigger_entry.word.length >= 2 ))
-						{
+						( trigger_entry.word.length >= 2 )) {
 
 						ddt.log( "source(): invoking response" );
 
@@ -336,9 +322,9 @@ if ( typeof( ddt ) == 'undefined' )
 
 						trigger_entry.callback( trigger_entry.word, response );
 
-						}
+					}
 					
-					},
+				},
 
 				/**
 				* focus callback
@@ -350,15 +336,14 @@ if ( typeof( ddt ) == 'undefined' )
 				* @see http://api.jqueryui.com/autocomplete/#event-focus
 				*/
 
-				focus: function( event, ui )
-					{
+				focus: function( event, ui ) {
 
 					ddt.log( "focus(): autocomplete got focus event", ui );
 
 					event.preventDefault();
 
 					return false;
-					},
+				},
 
 				/**
 				* select callback
@@ -377,8 +362,7 @@ if ( typeof( ddt ) == 'undefined' )
 				* @see http://api.jqueryui.com/autocomplete/#event-select
 				*/
 
-				select: function( event, ui )
-					{
+				select: function( event, ui ) {
 
 					ddt.log( "select(): got select event ", event, " and ui element ", ui, " current range is ", this.currentRange );
 
@@ -399,11 +383,11 @@ if ( typeof( ddt ) == 'undefined' )
 
 					richtext_widget.do_regex = false;
 
-					}
+				}
 
-				});	// end of this.element.autocomplete
+			});	// end of this.element.autocomplete
 				
-			},	// end of _create()
+		},	// end of _create()
 
 		/**
 		* handle keypresses near inserted objects
@@ -423,8 +407,7 @@ if ( typeof( ddt ) == 'undefined' )
 		*	(it will, however, frustratingly then proceed to delete the character)
 		*/
 
-		_onKeyDown: function( event )
-			{
+		_onKeyDown: function( event ) {
 
 			ddt.log( "_onKeyDown(): with key '" + event.keyCode + "' event: ", event );
 
@@ -434,36 +417,30 @@ if ( typeof( ddt ) == 'undefined' )
 
 			// if the autocomplete menu is open don't do anything with up and down arrow keys
 
-			if ( this.autocomplete_open )
-				{
+			if ( this.autocomplete_open ) {
 
-				if (( event.which == $.ui.keyCode.UP ) || ( event.which == $.ui.keyCode.DOWN ) || ( event.which == $.ui.keyCode.ENTER ))
-					{
+				if (( event.which == $.ui.keyCode.UP ) || ( event.which == $.ui.keyCode.DOWN ) || ( event.which == $.ui.keyCode.ENTER )) {
 					event.preventDefault();
 					return true;
-					}
 				}
+			}
 
 			// we may have a multiple char selection in which case we want to let the browser handle
 			// it. (see _onKeyUp)
 
 			sel = RANGE_HANDLER.getSelection();
 
-			if ( sel.rangeCount )
-				{
+			if ( sel.rangeCount ) {
 
 				var range = RANGE_HANDLER.getSelection().getRangeAt(0);
 
-				if ( range.collapsed == false )
-					{
+				if ( range.collapsed == false ) {
 					ddt.log( "_onKeyDown(): multi-char range. skipping onKeyDown processing" );
 					return;
-					}
 				}
+			}
 
-
-			switch ( event.which )
-				{
+			switch ( event.which ) {
 
 				case 0:
 
@@ -475,26 +452,24 @@ if ( typeof( ddt ) == 'undefined' )
 
 					// event.preventDefault();
 
-					break;
+				break;
 
 				case $.ui.keyCode.BACKSPACE:
-
+        	
 					ddt.log( "_onKeyDown(): BACKSPACE pressed" );
 
 					var retval = false;
 
-					if (( retval = this._backspaceZeroSpace()) == 'stop' )
-						{
+					if (( retval = this._backspaceZeroSpace()) == 'stop' ) {
 						ddt.log( "_onKeyDown(): BACKSPACE: stop word encountered. stopping" );
 						return;
-						}
+					}
 
 					// is the previous character an embedded object?
-
+                        	
 					ddt.log( "_onKeyDown(): BACKSPACE: checking to see if we are next to an object" );
 
-					if ( object = this._checkForAdjacentObject( 'left' ))
-						{
+					if ( object = this._checkForAdjacentObject( 'left' )) {
 
 						ddt.log( "_onKeyDown(): backspacing over an object :", object );
 
@@ -502,17 +477,16 @@ if ( typeof( ddt ) == 'undefined' )
 
 						// if we deleted any whitespace characters prevent the browser from
 						// deleting whatever the next character is
-
-						if ( object.preventDefault )
-							{
+                                        	
+						if ( object.preventDefault ) {
 							event.preventDefault();
-							}
-
 						}
+
+					}
 
 					ddt.log( "_onKeyDown(): BACKSPACE: done" );
 
-					break;
+				break;
 
 				case $.ui.keyCode.DELETE:
 
@@ -520,18 +494,16 @@ if ( typeof( ddt ) == 'undefined' )
 
 					var retval = false;
 
-					if (( retval = this._deleteZeroSpace()) == 'stop' )
-						{
+					if (( retval = this._deleteZeroSpace()) == 'stop' ) {
 						ddt.log( "_onKeyDown(): DELETEE: stop word encountered. stopping" );
 						return;
-						}
+					}
 
 					// is the next character an embedded object?
 
 					ddt.log( "_onKeyDown(): DELETE: checking to see if we are next to an object" );
 
-					if ( object = this._checkForAdjacentObject( 'right' ))
-						{
+					if ( object = this._checkForAdjacentObject( 'right' )) {
 
 						ddt.log( "_onKeyDown(): DELETE: deleting an object :", object );
 
@@ -541,11 +513,11 @@ if ( typeof( ddt ) == 'undefined' )
 
 						event.preventDefault();
 
-						}
+					}
 
 					ddt.log( "_onKeyDown(): DELETE done" );
 
-					break;
+				break;
 
 				case $.ui.keyCode.LEFT:
 
@@ -559,8 +531,7 @@ if ( typeof( ddt ) == 'undefined' )
 
 					// are we immediately next to an object? Jump the cursor over it.
 
-					if ( object = this._isEmbeddedObject( caret.dom_node ) )
-						{
+					if ( object = this._isEmbeddedObject( caret.dom_node ) ) {
 
 						ddt.log( "_onKeyDown(): setting caret before object: ", object );
 
@@ -578,7 +549,7 @@ if ( typeof( ddt ) == 'undefined' )
 						event.preventDefault();
 
 						break;
-						}
+					}
 
 					// We are not right next to an object but there may be some number of zero width
 					// characters and/or textnodes between the current caret position and the object
@@ -586,42 +557,38 @@ if ( typeof( ddt ) == 'undefined' )
 					// _moveCaret() may move the cursor into another container in which
 					// case we do NOT try to jump over any next object.
 
-					if ( location = this._moveCaret( caret.dom_node, caret.offset, 'left' ) )
-						{
+					if ( location = this._moveCaret( caret.dom_node, caret.offset, 'left' ) ) {
 
 						ddt.log( "_onKeyDown(): LEFT: _moveCaret returned:", location );
 
 						// unless we've just moved into a container (i.e. new line) , we want to jump over any
 						// embedded objects we've arrived next to.
 
-						if (( location.checkForObjects ) && ( object = this._checkForAdjacentObject( 'left' )))
-							{
+						if (( location.checkForObjects ) && ( object = this._checkForAdjacentObject( 'left' ))) {
 
 							ddt.log( "_onKeyDown(): LEFT: jumping over object to the left" );
 
 							this._setCaretPositionRelative( object.dom_node.previousSibling, 'end' )
 
 							event.preventDefault();
-
-							}
+						}
 
 						// HACK: special fix for WebKit. When jumping out of containers don't let the 
 						// browser do it's thing otherwise it'll jump one too far. Same for Mozilla.
 
-						if ( location.preventDefault )
-							{
+						if ( location.preventDefault ) {
 							ddt.log( "_onKeyDown(): Leaving a container, etc. preventing default" );
 
 							event.preventDefault();
-							}
+						}
 
 						// If it's a text node we want to let the browser move the cursor for us. 
 
-						}
+					}
 
 					ddt.log( "_onKeyDown(): LEFT done" );
 
-					break;
+				break;
 
 				case $.ui.keyCode.RIGHT:
 
@@ -635,8 +602,7 @@ if ( typeof( ddt ) == 'undefined' )
 
 					// are we next to an object? Jump the cursor over it.
 
-					if ( object = this._isEmbeddedObject( caret.dom_node ) )
-						{
+					if ( object = this._isEmbeddedObject( caret.dom_node ) ) {
 
 						ddt.log( "_onKeyDown(): isEmbedded true. moving to beginning of nextSibling" );
 
@@ -652,13 +618,12 @@ if ( typeof( ddt ) == 'undefined' )
 
 						break;
 
-						}
+					}
 
 					// _moveCaret() may move the cursor into another container in which
 					// case we do NOT try to jump over any next object.
 
-					if ( location = this._moveCaret( caret.dom_node, caret.offset, 'right' ) )
-						{
+					if ( location = this._moveCaret( caret.dom_node, caret.offset, 'right' ) ) {
 
 						ddt.log( "_onKeyDown(): RIGHT: after skipping over zero space. checking for adjacent objects :", location );
 
@@ -666,8 +631,7 @@ if ( typeof( ddt ) == 'undefined' )
 						// cursor over it but ONLY if we are not moving onto a new line (i.e. moving into
 						// a child container)
 
-						if (( location.checkForObjects ) && ( object = this._checkForAdjacentObject( 'right' )))
-							{
+						if (( location.checkForObjects ) && ( object = this._checkForAdjacentObject( 'right' ))) {
 
 							ddt.log( "_onKeyDown(): RIGHT: right arrowing over an object" );
 
@@ -677,23 +641,22 @@ if ( typeof( ddt ) == 'undefined' )
 
 							// event.preventDefault();
 		
-							}
+						}
 
 						// HACK: special fix for WebKit. When jumping into or out of containers don't let the 
 						// browser do it's thing otherwise it'll jump one too far. Same for Mozilla and a BR.
 
-						if ( location.preventDefault )
-							{
+						if ( location.preventDefault ) {
 							ddt.log( "_onKeyDown(): entering or leaving a container. preventing default" );
 
 							event.preventDefault();
-							}
-
 						}
+
+					}
 
 					ddt.log( "_onKeyDown(): RIGHT done." );
 
-					break;
+				break;
 
 				case $.ui.keyCode.ENTER:
 
@@ -710,11 +673,11 @@ if ( typeof( ddt ) == 'undefined' )
 
 					return false;
 
-					break;
+				break;
 
-				}	// end of switch
+			}	// end of switch
 
-			},	// end of _onKeyDown()
+		},	// end of _onKeyDown()
 
 		/**
 		* keypress handler
@@ -725,25 +688,21 @@ if ( typeof( ddt ) == 'undefined' )
 		* to update.
 		*/
 
-		_onKeyPress: function( event )
-			{
+		_onKeyPress: function( event ) {
 
 			ddt.log( "_onKeyPress(): with key '" + event.keyCode + "' event: ", event );
 
                         // if the autocomplete menu is open don't do anything with up and down arrow keys
 
-                        if ( this.autocomplete_open )
-                                {
+			if ( this.autocomplete_open ) {
 
-                                if (( event.which == $.ui.keyCode.UP ) || ( event.which == $.ui.keyCode.DOWN ) || ( event.which == $.ui.keyCode.ENTER ))
-                                        {
+				if (( event.which == $.ui.keyCode.UP ) || ( event.which == $.ui.keyCode.DOWN ) || ( event.which == $.ui.keyCode.ENTER )) {
 					event.preventDefault();
-                                        return true;
-                                        }
-                                }
+					return true;
+				}
+			}
 
-			switch ( event.which )
-				{
+			switch ( event.which ) {
 
 				case $.ui.keyCode.SPACE:
 
@@ -753,7 +712,7 @@ if ( typeof( ddt ) == 'undefined' )
 
 					this._checkRegexes( event );
 
-					break;
+				break;
 
 				case $.ui.keyCode.ENTER:
 
@@ -765,11 +724,11 @@ if ( typeof( ddt ) == 'undefined' )
 
 					this._checkRegexes( event );
 
-					break;
+				break;
 
-				}
+			}
 
-			},	// end of onKeyPress()
+		}, // end of onKeyPress()
 
 		/**
 		* check for spaces and arrow key moves
@@ -781,8 +740,7 @@ if ( typeof( ddt ) == 'undefined' )
 		* @see _insertSelection()
 		*/
 
-		_onKeyUp: function( event )
-			{
+		_onKeyUp: function( event ) {
 
 			var caret = null;
 
@@ -790,27 +748,24 @@ if ( typeof( ddt ) == 'undefined' )
 
                         // if the autocomplete menu is open don't do anything with up and down arrow keys
 
-                        if ( this.autocomplete_open )
-                                {
+			if ( this.autocomplete_open ) {
 
-                                if (( event.which == $.ui.keyCode.UP ) || ( event.which == $.ui.keyCode.DOWN ) || ( event.which == $.ui.keyCode.ENTER ))
-                                        {
+				if (( event.which == $.ui.keyCode.UP ) || ( event.which == $.ui.keyCode.DOWN ) || ( event.which == $.ui.keyCode.ENTER )) {
 					event.preventDefault();
-                                        return true;
-                                        }
-                                }
+					return true;
+				}
+			}
 
 			// we may have a multiple char selection
 
-			if ( this._handleRangeSelection() )
-				{
+			if ( this._handleRangeSelection() ) {
 
 				// let the user do with the range whatever they want. The browser will 
 				// take care of it. 
 
 				return;
 
-				}
+			}
 
 			// save the range in case we click out of the div and then want to insert
 			// something.
@@ -824,8 +779,7 @@ if ( typeof( ddt ) == 'undefined' )
 
 			// we may arrive here because of arrow key and other events.
 
-			switch ( event.which )
-				{
+			switch ( event.which ) {
 
 				case $.ui.keyCode.ENTER:
 					
@@ -840,17 +794,16 @@ if ( typeof( ddt ) == 'undefined' )
 					// callback is still getting invoked even when enter is pressed in the autocomplete
 					// dropdown.
 
-					if ( this.selectionEntered )
-						{
+					if ( this.selectionEntered ) {
 						this.selectionEntered = false;
 						break;
-						}
+					}
 
 					this._onEnterFixUp( event );
 
 					ddt.log( "_onKeyUp(): ENTER. done." );
 
-					break;
+				break;
 
 				case $.ui.keyCode.SPACE:
 				case $.ui.keyCode.TAB:
@@ -864,7 +817,7 @@ if ( typeof( ddt ) == 'undefined' )
 
 					ddt.log( "_onKeyUp(): closed autocomplete menu" );
 
-					break;
+				break;
 
 				case $.ui.keyCode.LEFT:
 				case $.ui.keyCode.RIGHT:
@@ -878,28 +831,24 @@ if ( typeof( ddt ) == 'undefined' )
 
 					var object_node = this._clickedOnObject( caret.dom_node );
 
-					if ( object_node != false )
-						{
+					if ( object_node != false ) {
 						
 						ddt.log( "_onKeyUp(): currently in an object. moving caret before object" );
 
 						this._setCaretPositionRelative( object_node, 'before' );
 						return;
-						}
+					}
 
 					// have we moved beyond the limit of a trigger character? 
 
-					if ( ! this._checkForTrigger() ) 
-						{
+					if ( ! this._checkForTrigger() ) {
 
 						ddt.log( "_onKeyUp(): outside of trigger" );
 
 						this.element.autocomplete( 'close' );
 						this.current_trigger = false;
 
-						}
-					else
-						{
+					} else {
 
 						ddt.log( '_onKeyUp(): in trigger' );
 
@@ -911,9 +860,9 @@ if ( typeof( ddt ) == 'undefined' )
 
 						this.element.autocomplete( 'search', 'test' );
 
-						}
+					}
 
-					break;
+				break;
 
 				case $.ui.keyCode.UP:
 				case $.ui.keyCode.DOWN:
@@ -932,16 +881,15 @@ if ( typeof( ddt ) == 'undefined' )
 
 					var object_node = this._clickedOnObject( caret.dom_node );
 
-					if ( object_node != false )
-						{
+					if ( object_node != false ) {
 						this._setCaretPositionRelative( object_node, 'before' );
-						}
+					}
 
-					break;
+				break;
 
-				}	// end of switch over keys.
+			} // end of switch over keys.
 
-			},	// end of _onKeyUp()
+		}, // end of _onKeyUp()
 
 		/**
 		* check to see if mouse click is inside a trigger.
@@ -951,8 +899,7 @@ if ( typeof( ddt ) == 'undefined' )
 		* objects on either end. 
 		*/
 
-		_onMouseUp: function( event )
-			{
+		_onMouseUp: function( event ) {
 
 			var trigger_entry;
 
@@ -963,20 +910,18 @@ if ( typeof( ddt ) == 'undefined' )
 			// scrollbar causes this event to fire so we need to guard against the fact
 			// the editable div may not have focus.
 
-			if ( ! $( '#' +  this.element.attr( 'id' ) ).is( ":focus" ) )
-				{
+			if ( ! $( '#' +  this.element.attr( 'id' ) ).is( ":focus" ) ) {
 				ddt.log( "_onMouseUp(): the div does not have focus" );
 				return true;
-				}
+			}
 
-			if ( this._handleRangeSelection() )
-				{
+			if ( this._handleRangeSelection() ) {
 
 				// let the user do with the range whatever they want. The browser will 
 				// take care of it. 
 
 				return;
-				}
+			}
 
 			// save the range in case we click out of the div and then want to insert
 			// something.
@@ -987,23 +932,21 @@ if ( typeof( ddt ) == 'undefined' )
 
 			var object_node = this._clickedOnObject( event.target );
 				
-			if ( object_node != false )
-				{
+			if ( object_node != false ) {
 
 				ddt.log( "_onMouseUp(): preventing default action" );
 
 				this._setCaretPositionRelative( object_node, 'before' );
 
 				event.preventDefault();
-				}
+			}
 
 			// if we are at the end of an object, highlight it to indicate 
 			// that it'll get deleted on backspace.
 
 			this._highlightObject();
 
-			if ( trigger_entry = this._checkForTrigger() )
-				{
+			if ( trigger_entry = this._checkForTrigger() ) {
 				
 				ddt.log( "_onMouseUp(): calling autocomplete from onMouseUp handler with term '" + trigger_entry.word + "'" );
 
@@ -1012,9 +955,9 @@ if ( typeof( ddt ) == 'undefined' )
 
 				this.element.autocomplete( 'search', 'test' );
 
-				}
+			}
 
-			},	// end of _onMouseUp()
+		}, // end of _onMouseUp()
 
 		/**
 		* handle focus event
@@ -1022,20 +965,17 @@ if ( typeof( ddt ) == 'undefined' )
 		* Prevents the selection from becoming invalid if the autocomplete menu is open.
 		*/
 
-		_onFocus: function( event )
-			{
+		_onFocus: function( event ) {
 
 			ddt.log( "focus(): top" );
 
-			if ( this.autocomplete_open )
-				{
+			if ( this.autocomplete_open ) {
 
 				ddt.log( "_onFocus(): autocomplete menu is open" );
 				event.preventDefault();
 				return false;
-				}
-
-			},
+			}
+		},
 
 		/**
 		* handle paste events.
@@ -1053,8 +993,7 @@ if ( typeof( ddt ) == 'undefined' )
 		* @link http://stackoverflow.com/questions/2176861/javascript-get-clipboard-data-on-paste-event-cross-browser/2177059#2177059
 		*/
 
-		_onPaste: function( event )
-			{
+		_onPaste: function( event ) {
 
 			ddt.log( "_onPaste(): got paste event ", event );
 
@@ -1067,10 +1006,9 @@ if ( typeof( ddt ) == 'undefined' )
 			// the callback timeout here is not perfect. If the browser is
 			// especially slow this may fail.
 
-			setTimeout( function() 
-				{ 
+			setTimeout( function() { 
 				self._onPostPaste( event ); 
-				}, 75);
+			}, 75);
 
 			this._checkRegexes( event );
 
@@ -1078,23 +1016,21 @@ if ( typeof( ddt ) == 'undefined' )
 
     			// return this.replaceWith(this.html().replace(/<\/?[^>]+>/gi, ''));
 
-			},	// end of _onPaste()
+		}, // end of _onPaste()
 
 		/**
 		* synthetic event handler for prepasting
 		*/
 
-		_onPrePaste: function( event )
-			{
+		_onPrePaste: function( event ) {
 
 			ddt.log( "_onPrePaste(): top" );
 
-			$(this.element).find("*").each(function()
-				{
+			$(this.element).find("*").each( function() {
 			        //var tmp=new Date.getTime();
 				$(this).data("uid", '123');
-				});
-			},
+			});
+		},
 
 		/**
 		* synthetic event handler for post pasting
@@ -1102,8 +1038,7 @@ if ( typeof( ddt ) == 'undefined' )
 		* strip out html tags. handle regexes.
 		*/
 
-		_onPostPaste: function( event )
-			{
+		_onPostPaste: function( event ) {
 
 			var caret = this._getCaretPosition();
 
@@ -1113,10 +1048,8 @@ if ( typeof( ddt ) == 'undefined' )
 
 			// replace any html tags but ignore text nodes
 
-			this.element.find("*").each(function()
-				{
-				if(!$(this).data("uid"))
-					{
+			this.element.find("*").each( function() {
+				if( !$(this).data("uid") ) {
 
 					ddt.log( "_onPostPaste(): Found a new element '" + $(this).get(0).tagName + "' of type", $(this).get(0).nodeType );
 
@@ -1124,8 +1057,8 @@ if ( typeof( ddt ) == 'undefined' )
 					// a tags the selection is lost. So for the moment we'll leave the a tag in place.
 
 //					if (( $(this).get(0).nodeType != 3 ) && ( $(this).get(0).nodeName != 'A' ))
-					if ( $(this).get(0).nodeType != 3 )
-						{
+
+					if ( $(this).get(0).nodeType != 3 ) {
 
 						// This unfortunately messes up the selection. So we need
 						// to pull out the text and create a node, insert the node
@@ -1140,19 +1073,19 @@ if ( typeof( ddt ) == 'undefined' )
 
 						rich_textarea._setCaretPositionRelative( text_node, 'after' )
 
-						}
+					}
 
 					// $(this).removeClass();
 					// $(this).removeAttr("style id");
-					}
-				});
+				}
+			});
 
 			var caret = rich_textarea._getCaretPosition();
 			ddt.log( "_onPostPaste(): caret position is now:", caret );
 
 			this._checkRegexes( event );
 
-			},
+		},
 
 		/**
 		* ensures that spaces before and after elements are still selectable after Enter key pressed.
@@ -1482,8 +1415,7 @@ if ( typeof( ddt ) == 'undefined' )
 		* @todo remove deprecated code since we are now normalizing everything to <BR>'s in _handlerEnter()
 		*/
 
-		_onEnterFixUp: function( event )
-			{
+		_onEnterFixUp: function( event ) {
 
 			var caret = this._getCaretPosition();
 
@@ -1500,8 +1432,7 @@ if ( typeof( ddt ) == 'undefined' )
 			// FireFox/Mozilla on the other hand inserts <BR _moz_dirty=""> which means there should always
 			// be a previousSibling. 
 
-			if ( caret.dom_node.previousSibling == null )
-				{
+			if ( caret.dom_node.previousSibling == null ) {
 
 				ddt.log( "_onEnterFixUp(): previous sibling is NULL. Likely a WebKit browser." );
 
@@ -1509,9 +1440,7 @@ if ( typeof( ddt ) == 'undefined' )
 
 				// is our parents previousSibling a container? 
 
-				}
-			else if ( caret.dom_node.previousSibling.nodeType != 3 )
-				{
+			} else if ( caret.dom_node.previousSibling.nodeType != 3 ) {
 
 				ddt.log( "_onEnterFixUp(): Previous sibling is NOT a text node" );
 
@@ -1520,7 +1449,7 @@ if ( typeof( ddt ) == 'undefined' )
 				this._insertEmptyNode( caret.dom_node.previousSibling, 'before' );
 				this._insertEmptyNode( caret.dom_node.previousSibling, 'after' );
 
-				}
+			}
 
 			// ---------------------------------------
 			// Fixup nodes moved to the new line
@@ -1531,17 +1460,14 @@ if ( typeof( ddt ) == 'undefined' )
 			//
 			// in either case, we'll make sure there are empty text nodes around it for good measure.
 
-			if ( $( caret.dom_node ).filter( '[_moz_dirty]' ).length != 0 )
-				{
+			if ( $( caret.dom_node ).filter( '[_moz_dirty]' ).length != 0 ) {
 
 				ddt.log( "_onEnterFixUp(): mozilla BR. wrapping in textnodes" );
 
 				this._insertEmptyNode( caret.dom_node, 'before' );
 				this._insertEmptyNode( caret.dom_node, 'after' );
 
-				}
-			else if ( caret.dom_node.nodeName == 'BR' )
-				{
+			} else if ( caret.dom_node.nodeName == 'BR' ) {
 
 				// this is likely webKit. We'll attempt to replace the BR with a space. 
 
@@ -1553,9 +1479,7 @@ if ( typeof( ddt ) == 'undefined' )
 				// this._insertEmptyNode( caret.dom_node, 'before' );
 				// $( caret.dom_node ).remove();
 
-				}
-			else if ( this._isEmbeddedObject( caret.dom_node ) )
-				{
+			} else if ( this._isEmbeddedObject( caret.dom_node ) ) {
 
 				// if we are an object, make sure there's a node in front of us and select it so the cursor
 				// doesn't try to get in the span of the object.
@@ -1563,11 +1487,9 @@ if ( typeof( ddt ) == 'undefined' )
 				var textnode = this._insertEmptyNode( caret.dom_node, 'before' );
 				this._selectTextNode( textnode, 0 );
 
-				}
-			else if (( caret.dom_node.nodeName == 'DIV' ) || 
+			} else if (( caret.dom_node.nodeName == 'DIV' ) || 
 				( caret.dom_node.nodeName == 'SPAN' ) ||
-				( caret.dom_node.nodeName == 'P' ))
-				{
+				( caret.dom_node.nodeName == 'P' )) {
 
 				// This branch is not likely to happen as most container should have textnodes
 				// in front of them, but just in case is this a container? (could maybe be an embedded 
@@ -1576,8 +1498,7 @@ if ( typeof( ddt ) == 'undefined' )
 				// else we are webkit or MSIE. webkit adds a DIV, MSIE a P. 
 				// make sure the first child is a text node.
 
-				if ( caret.dom_node.childNodes.length == 0 )
-					{
+				if ( caret.dom_node.childNodes.length == 0 ) {
 
 					// empty container. 
 
@@ -1585,9 +1506,7 @@ if ( typeof( ddt ) == 'undefined' )
 
 					this._insertEmptyNode( caret.dom_node, 'child' );
 
-					}
-				else if ( caret.dom_node.childNodes[ 0 ].nodeType != 3 )
-					{
+				} else if ( caret.dom_node.childNodes[ 0 ].nodeType != 3 ) {
 
 					// first node of the container is NOT a textnode.
 
@@ -1598,25 +1517,24 @@ if ( typeof( ddt ) == 'undefined' )
 					this._insertEmptyNode( caret.dom_node.childNodes[ 0 ], 'before' );
 					this._insertEmptyNode( caret.dom_node.childNodes[ 0 ], 'after' );
 
-					}
+				}
 
-				}	// end of the node was a container
+			}	// end of the node was a container
 
 //                        $( '.scrollto' ).scrollintoview( { duration: 30 });
 //                        $( '.scrollto' ).get(0).scrollIntoView(false);
 
 			// if there is a scrollTo span set in handleEnter() invoke scrollTo.
 
-			if ( $( '.scrollto' ).length  )
-				{
+			if ( $( '.scrollto' ).length  ) {
 				ddt.log( "calling scrollTo" );
 				$( '#' +  this.element.attr( 'id' ) ).scrollTo( $( '.scrollto' ), 20 );
         	                $( '.scrollto' ).remove();
-				}
+			}
 
 			// $( this.tmp_kludge ).scrollintoview();
 
-			},	// end of _onEnterFixUp()
+		}, // end of _onEnterFixUp()
 
 		/**
 		* a simpler approach to handling newlines.
@@ -1645,8 +1563,7 @@ if ( typeof( ddt ) == 'undefined' )
 		* @todo figure out why sometimes _onEnterFixUp() is not correctly deleting the temporary span.
 		*/
 
-		_handleEnter: function( event )
-			{
+		_handleEnter: function( event ) {
 			ddt.log( "top of handleEnter()" );
 
 			event.preventDefault();
@@ -1677,8 +1594,7 @@ if ( typeof( ddt ) == 'undefined' )
 
                         sel.removeAllRanges();
 
-			if ( ! range )
-				{
+			if ( ! range ) {
 
 				// chances are someone just clicked ENTER.
 
@@ -1713,7 +1629,7 @@ if ( typeof( ddt ) == 'undefined' )
 				// this._saveRange();
 
 				return false;
-				}
+			}
 
                         sel.addRange( range );
 
@@ -1763,37 +1679,33 @@ if ( typeof( ddt ) == 'undefined' )
 
 			return false;
 
-			},	// end of _handleEnter()
+		},	// end of _handleEnter()
 
 		/**
 		* handle a range selection
 		*
-		* Handles case where use has selected potentially multiple nodes. The start and ends of the range
+		* Handles case where the user has selected potentially multiple nodes. The start and ends of the range
 		* are checked and adjusted if they happen to fall within object boundaries.
 		*
 		* @return {Boolean} true if it's a multi-char range, false otherwise.
 		*/
 
-		_handleRangeSelection: function()
-			{
+		_handleRangeSelection: function() {
 
 			var sel = RANGE_HANDLER.getSelection();
 
 			// if there's no selection, which can happen if we are scrolling, this will throw
 			// an exception
 
-			try 
-				{
+			try {
 				var range = sel.getRangeAt(0);
-				}
-			catch( err )
-				{
+			} catch( err ) {
 				ddt.log( "getRangeAt() failed - no range?" );
 
 				// no selected range.
 
 				return false;
-				}
+			}
 
 			var start_node = null;
 			var end_node = null;
@@ -1803,45 +1715,40 @@ if ( typeof( ddt ) == 'undefined' )
 			// did the user click and drag a selection. We /should/ get the final selection
 			// here unlike the case with the keyboard lagging. 
 
-			if ( range.collapsed == false )
-				{
+			if ( range.collapsed == false ) {
 
 				ddt.log( "_handleRangeSelection(): we have a multi-character selection" );
 
-				if (( start_node = this._clickedOnObject( range.startContainer )) != false )
-					{
+				if (( start_node = this._clickedOnObject( range.startContainer )) != false ) {
 
 					ddt.log( "_handleRangeSelection(): range starts in an object." );
 
 					range.setStartBefore( start_node );
+				}
 
-					}
-
-				if (( end_node = this._clickedOnObject( range.endContainer )) != false )
-					{
+				if (( end_node = this._clickedOnObject( range.endContainer )) != false ) {
 
 					ddt.log( "_handleRangeSelection(): range ends in an object." );
 
 					range.setEndAfter( end_node );
 
-					}
+				}
 
-				if (( start_node != false ) || ( end_node != false ))
-					{
+				if (( start_node != false ) || ( end_node != false )) {
 
 					ddt.log( "_handleRangeSelection(): modifying range :", range );
 
 					sel.removeAllRanges();
 					sel.addRange( range );
-					}
+				}
 
 				return true;
 
-				}	// end of if the user selected a multi-char range.
+			} // end of if the user selected a multi-char range.
 
 			return false;
 
-			},	// end of _handleRangeSelection()
+		}, // end of _handleRangeSelection()
 
 		/**
 		* saves the current range
@@ -1858,35 +1765,32 @@ if ( typeof( ddt ) == 'undefined' )
 		* @see insertObject()
 		*/
 
-		_saveRange: function( range )
-			{
+		_saveRange: function( range ) {
+
 			ddt.log( "_saveRange(): before save currentRange: ", this.currentRange );
 
 			// we may have been invoked because of a scrollbar move.
 
-			if ( typeof( range ) == 'undefined' )
-				{
+			if ( typeof( range ) == 'undefined' ) {
 
-				try
-					{
+				try {
 
 					ddt.log( "_saveRange(): current selection is", RANGE_HANDLER.getSelection() );
 
 					var range = RANGE_HANDLER.getSelection().getRangeAt(0);
-					}
-				catch( err )
-					{
+
+				} catch( err ) {
 
 					ddt.log( "_saveRange(): no range? caught exception:" + err );
 					return false;
-					}
-
 				}
+
+			}
 
 		        this.currentRange = range.cloneRange();
 
 			ddt.log( "_saveRange(): saving currentRange: ", this.currentRange );
-			},
+		},
 
 		/**
 		* determines if we are in a trigger word
@@ -1939,21 +1843,19 @@ if ( typeof( ddt ) == 'undefined' )
 		* @return {Boolean|Object} false if no term found otherwise the trigger_entry.
 		*/
 
-		_checkForTrigger: function()
-			{
+		_checkForTrigger: function() {
 
 			var caret = null;
 			var trigger_entry = null;
 
 			caret = this._getCaretPosition();
 
-			if (( ! caret ) || ( caret.offset == -1 ))
-				{
+			if (( ! caret ) || ( caret.offset == -1 )) {
 
 				ddt.log( "_checkForTrigger(): we are not inside a text node. No trigger" );
 
 				return false;
-				}
+			}
 
 			ddt.log( "_checkForTrigger(): current caret position is " + caret.offset );
 
@@ -1968,7 +1870,7 @@ if ( typeof( ddt ) == 'undefined' )
 
 			return trigger_entry;
 
-			},	// end of _checkForTrigger()
+		}, // end of _checkForTrigger()
 
 		/**
 		* check for regex match
@@ -1993,8 +1895,7 @@ if ( typeof( ddt ) == 'undefined' )
 		* @see regexes
 		*/
 
-		_checkRegexes: function( event )
-			{
+		_checkRegexes: function( event ) {
 
 			var caret = null;
 			var word_entry = null;
@@ -2003,39 +1904,35 @@ if ( typeof( ddt ) == 'undefined' )
 
 			caret = this._getCaretPosition();
 
-			if ( caret.offset == -1 )
-				{
+			if ( caret.offset == -1 ) {
 
 				ddt.log( "_checkRegexes(): we are not inside a text node. No word" );
 
 				return false;
-				}
+			}
 
 			ddt.log( "_checkRegexes(): current caret position is " + caret.offset + " value is '" + caret.dom_node.nodeValue.charAt( caret.offset - 1 ) + "'" );
 
-			if ( event.type =='keyup' )
-				{
+			if ( event.type =='keyup' ) {
 
 				// if the user pressed a space, then we need to start looking two characters back.
 
-				if ( caret.offset < 3 )
-					{
+				if ( caret.offset < 3 ) {
 					return;
-					}
+				}
 
 				// we're in keyup so the cursor has moved past the space
 
 		 		caret.offset--;
 
-				}
+			}
 
 			// are we inside the bounds of a word that may be interspersed zero width space
 			// character and may span multiple text nodes? (thanks WebKit)
 			//
 			// -1 because the caret position is to the right of the last character entered.
 
-			if ( word_entry = this._getWord( caret.dom_node, caret.offset - 1 ) )
-				{
+			if ( word_entry = this._getWord( caret.dom_node, caret.offset - 1 ) ) {
 
 				ddt.log( "_checkRegexes(): found word '" + word_entry.word + "' and we have '" + this.options.regexes.length + "' regexes defined" );
 
@@ -2043,25 +1940,23 @@ if ( typeof( ddt ) == 'undefined' )
 				// we find a match, run the callback. We only run one match, the first match having
 				// precedence.
 
-				for ( var i = 0; i < this.options.regexes.length; i++ )
-					{
+				for ( var i = 0; i < this.options.regexes.length; i++ ) {
 
 					ddt.log( "_checkRegexes(): checking against '" + this.options.regexes[i].regex );
 
-					if ( word_entry.word.match( this.options.regexes[i].regex ) )
-						{
+					if ( word_entry.word.match( this.options.regexes[i].regex ) ) {
 
 						ddt.log( "_checkRegexes(): found match at offset '" + i + "' calling callback" );
 
 						this.options.regexes[i].callback( word_entry );
 
-						}
-
 					}
 
-				}	// end of if we got a word.
+				}
 
-			},	// end of _checkRegexes()
+			}	// end of if we got a word.
+
+		}, // end of _checkRegexes()
 
 		/**
 		* search backwards for start of trigger word.
@@ -2086,8 +1981,7 @@ if ( typeof( ddt ) == 'undefined' )
 		* @see http://api.jquery.com/text/
 		*/
 
-		_isTrigger: function( dom_node, caret_position )
-			{
+		_isTrigger: function( dom_node, caret_position ) {
 
 			// modes are 'looking_for_trigger' and 'looking_for_space'
 
@@ -2104,57 +1998,50 @@ if ( typeof( ddt ) == 'undefined' )
 			//
 			// search backwards for a trigger character.
 
-			while ( true )
-				{
+			while ( true ) {
 
 				loop_brake--;
 
-				if ( loop_brake <= 0 )
-					{
+				if ( loop_brake <= 0 ) {
 
 					ddt.error( "_isTrigger(): runaway loop. braking" );
 
 					return false;
-					}
+				}
 
-				if ( caret_position == -1 )
-					{
+				if ( caret_position == -1 ) {
 
 					ddt.log( "_isTrigger(): top of loop, caret_position is '" + caret_position + "' previousSibling is:", dom_node.previousSibling );
 		
-					if ( dom_node.previousSibling == null )
-						{
+					if ( dom_node.previousSibling == null ) {
 					
 						ddt.log( "_isTrigger(): beginning of container found." );
 
-						if ( mode == 'looking_for_trigger' )
-							{
+						if ( mode == 'looking_for_trigger' ) {
 
 							ddt.log( "_isTrigger(): not a trigger" );
 
 							return false;
-							}
+						}
 
 						break;	// out of while loop 
 					
-						}
+					}
 
-  					if ( dom_node.previousSibling.nodeType != 3 )
-						{
+  					if ( dom_node.previousSibling.nodeType != 3 ) {
 
 						ddt.log( "_isTrigger(): previousSibling is NOT a text node." );
 
-						if ( mode == 'looking_for_trigger' )
-							{
+						if ( mode == 'looking_for_trigger' ) {
 
 							ddt.log( "_isTrigger(): not a trigger" );
 
 							return false;
-							}
+						}
 
 						break;	// out of while loop 
 
-						}
+					}
 
 					dom_node = dom_node.previousSibling;
 
@@ -2162,8 +2049,7 @@ if ( typeof( ddt ) == 'undefined' )
 
 					ddt.log( "_isTrigger(): moving to previousSibling length '" + caret_position + "'" );
 
-					if ( caret_position == -1 )
-						{
+					if ( caret_position == -1 ) {
 
 						// empty text nodes seem to be inserted by WebKit randomly.
 
@@ -2171,14 +2057,13 @@ if ( typeof( ddt ) == 'undefined' )
 
 						continue;
 
-						}
+					}
 
-					}	// end of if we are at the beginning of a textnode.
+				} // end of if we are at the beginning of a textnode.
 
 				// do we have a zero width space character? 
 
-				if ( dom_node.nodeValue.charAt( caret_position ) == '\u200B' )
-					{
+				if ( dom_node.nodeValue.charAt( caret_position ) == '\u200B' ) {
 
 					ddt.log( "_isTrigger(): skipping zero width space character" );
 
@@ -2186,23 +2071,20 @@ if ( typeof( ddt ) == 'undefined' )
 
 					continue;
 						
-					}
+				}
 
 				ddt.log( "_isTrigger(): Not a zero width space. Is it a space character?" );
 								
-				if ( ! dom_node.nodeValue.charAt( caret_position ).match( /\s+/ ))
-					{
+				if ( ! dom_node.nodeValue.charAt( caret_position ).match( /\s+/ )) {
 
 					// it's not a space. If we are still looking for a trigger character check
 					// to see if it is one. 
 
-					if ( mode == 'looking_for_trigger' )
-						{
+					if ( mode == 'looking_for_trigger' ) {
 
 						ddt.log( "_isTrigger(): checking '" + dom_node.nodeValue.charAt( caret_position ) + "' for trigger char" );
 
-						if ( trigger_entry = this._isTriggerChar( dom_node.nodeValue.charAt( caret_position ) ))
-							{
+						if ( trigger_entry = this._isTriggerChar( dom_node.nodeValue.charAt( caret_position ) )) {
 
 							ddt.log( "_isTrigger(): found trigger char '" + dom_node.nodeValue.charAt( caret_position ) + "' at caret_position '" + caret_position + "'" );
 
@@ -2219,15 +2101,13 @@ if ( typeof( ddt ) == 'undefined' )
 
 							continue;
 
-							}
+						}
 
 						ddt.log( "_isTrigger(): '" + dom_node.nodeValue.charAt( caret_position) + "' not a trigger char." );
 
 						caret_position--;
 
-						}
-					else
-						{
+					} else {
 
 						// we are looking for a space and it's not a zero width character or a space. Thus 
 						// the trigger character has something else in front of it. Not a trigger boundary.
@@ -2238,29 +2118,28 @@ if ( typeof( ddt ) == 'undefined' )
 
 						return false;
 
-						}
+					}
 
-					}	// end of if we found a non-space character.
-				else
-					{
+				// end of if we found a non-space character. 
+
+				} else {
 
 					// we found a space. IF we were looking for a trigger then we end. 
 
-					if ( mode == 'looking_for_trigger' )
-						{
+					if ( mode == 'looking_for_trigger' ) {
 
 						ddt.log( "_isTrigger(): found a space instead of a trigger char" );
 
 						return false;
-						}
+					}
 
 					ddt.log( "_isTrigger(): found a space. This is the start of a trigger" );
 
 					break;	// out of while loop
 
-					}
+				}
 
-				}	// end of while loop.
+			} // end of while loop.
 
 			// --------------------------------
 			// Arrive here when we've found the beginning of a trigger word taking multiple text nodes
@@ -2283,7 +2162,7 @@ if ( typeof( ddt ) == 'undefined' )
 
 			return trigger_entry;
 
-			},	// end  of _isTrigger()
+		}, // end  of _isTrigger()
 
 		/**
 		* find the end boundary of a word taking multiple text nodes into account.
@@ -2296,8 +2175,7 @@ if ( typeof( ddt ) == 'undefined' )
 		* @return {Object|Boolean} with keys startNode, startOffset, endNode, endOffset, word or false if not a trigger word boundary
 		*/
 
-		_getWordEnd: function( word_entry )
-			{
+		_getWordEnd: function( word_entry ) {
 			
 			var loop_brake = 200;
 			var word = '';
@@ -2311,27 +2189,23 @@ if ( typeof( ddt ) == 'undefined' )
 
 			ddt.log( "_getWordEnd(): at start of trigger word with caret_position '" + caret_position + "' and char '" + dom_node.nodeValue.charAt( caret_position ) + "' length '" + dom_node.nodeValue.length + "'" );
 
-			while ( true )
-				{
+			while ( true ) {
 
 				// for when I make mistakes. avoids locking up the browser.
 
-				if ( loop_brake-- <= 0 )
-					{
+				if ( loop_brake-- <= 0 ) {
 					ddt.error( "_getWordEnd(): runaway loop" );
 
 					return false;
-					}
+				}
 
 				ddt.log( "_getWordEnd(): Top of loop '" + caret_position + "'" );
 
 				// can be 0 if we get a 0 length node 
 
-				if ( caret_position >= dom_node.nodeValue.length )
-					{
+				if ( caret_position >= dom_node.nodeValue.length ) {
 
-					if ( dom_node.nextSibling == null )
-						{
+					if ( dom_node.nextSibling == null ) {
 					
 						ddt.log( "_getWordEnd(): returning '" + word + "'" );
 
@@ -2341,10 +2215,9 @@ if ( typeof( ddt ) == 'undefined' )
 
 						return word_entry;
 					
-						}
+					}
 
-  					if ( dom_node.nextSibling.nodeType != 3 )
-						{
+  					if ( dom_node.nextSibling.nodeType != 3 ) {
 
 						ddt.log( "_getWordEnd(): nextSibling is NOT a text node. Returning '" + word + "'" );
 
@@ -2353,7 +2226,7 @@ if ( typeof( ddt ) == 'undefined' )
 						word_entry.word = word;
 
 						return word_entry;
-						}
+					}
 
 					ddt.log( "_getWordEnd(): moving to next sibling of type '" + dom_node.nextSibling.nodeType + "' with length '" + dom_node.nextSibling.nodeValue.length + "' and value '" + dom_node.nextSibling.nodeValue + "'" );
 
@@ -2365,21 +2238,19 @@ if ( typeof( ddt ) == 'undefined' )
 					//
 					// FIXME: do these always show up at the end of a line? 
 
-					if ( dom_node.nodeValue.length == 0 )
-						{
+					if ( dom_node.nodeValue.length == 0 ) {
 						
 						ddt.log( "_getWordEnd(): empty text node found." );
 
 						continue;
 
-						}
+					}
 
-					}	// end of if we were at the end of a text node.
+				} // end of if we were at the end of a text node.
 
 				// do we have a zero width space character? 
 
-				if ( dom_node.nodeValue.charAt( caret_position ) == '\u200B' )
-					{
+				if ( dom_node.nodeValue.charAt( caret_position ) == '\u200B' ) {
 
 					ddt.log( "_getWordEnd(): skipping zero width space character" );
 
@@ -2387,10 +2258,9 @@ if ( typeof( ddt ) == 'undefined' )
 
 					continue;
 						
-					}
+				}
 				
-				if ( ! dom_node.nodeValue.charAt( caret_position ).match( /\s+/ ) )
-					{
+				if ( ! dom_node.nodeValue.charAt( caret_position ).match( /\s+/ ) ) {
 
 					// it's not a zero width character or a space. add it to the trigger string.
 			
@@ -2400,9 +2270,7 @@ if ( typeof( ddt ) == 'undefined' )
 
 					caret_position++;
 
-					}
-				else 
-					{
+				} else {
 
 					ddt.log( "_getWordEnd(): found a space. Returning '" + word + "'" );
 
@@ -2415,11 +2283,11 @@ if ( typeof( ddt ) == 'undefined' )
 
 					return word_entry;
 
-					}
+				}
 
-				}	// end of while loop.
+			} // end of while loop.
 
-			},	// end of _getWordEnd()
+		}, // end of _getWordEnd()
 
 		/**
 		* is the given character a trigger character?
@@ -2427,25 +2295,22 @@ if ( typeof( ddt ) == 'undefined' )
 		* @return object trigger definition.
 		*/
 
-		_isTriggerChar: function( char )
-			{
+		_isTriggerChar: function( char ) {
 
-			for ( var i in this.options.triggers )
-				{
+			for ( var i in this.options.triggers ) {
 
-				if ( char == this.options.triggers[i].trigger )
-					{
+				if ( char == this.options.triggers[i].trigger ) {
 
 					// ddt.log( "_isTriggerChar(): found trigger char " + char );
 
 					return this.options.triggers[i];
-					}
-
 				}
+
+			}
 
 			return false;
 
-			},	// end of _isTriggerChar()
+		}, // end of _isTriggerChar()
 
 		/**
 		* search for the boundaries of a word.
@@ -2461,8 +2326,7 @@ if ( typeof( ddt ) == 'undefined' )
 		* @return {object|Boolean} with keys word, startNode, startOffset, endNode, endOffset or false if not a word
 		*/
 
-		_getWord: function( dom_node, caret_position )
-			{
+		_getWord: function( dom_node, caret_position ) {
 
 			var loop_brake = 200;
 
@@ -2479,26 +2343,22 @@ if ( typeof( ddt ) == 'undefined' )
 			//
 			// search backwards for a space.
 
-			while ( true )
-				{
+			while ( true ) {
 
 				loop_brake--;
 
-				if ( loop_brake <= 0 )
-					{
+				if ( loop_brake <= 0 ) {
 
 					ddt.error( "_getWord(): runaway loop. braking" );
 
 					return false;
-					}
+				}
 
-				if ( caret_position == -1 )
-					{
+				if ( caret_position == -1 ) {
 
 					ddt.log( "_getWord(): top of loop, caret_position is '" + caret_position + "' previousSibling is:", dom_node.previousSibling );
 		
-					if ( dom_node.previousSibling == null )
-						{
+					if ( dom_node.previousSibling == null ) {
 
 						// beginning of container means we've found a word boundary.
 											
@@ -2506,10 +2366,9 @@ if ( typeof( ddt ) == 'undefined' )
 
 						break;	// out of while loop 
 					
-						}
+					}
 
-  					if ( dom_node.previousSibling.nodeType != 3 )
-						{
+  					if ( dom_node.previousSibling.nodeType != 3 ) {
 
 						// running into a different element also means a word boundary (likely a BR)
 
@@ -2517,7 +2376,7 @@ if ( typeof( ddt ) == 'undefined' )
 
 						break;	// out of while loop 
 
-						}
+					}
 
 					dom_node = dom_node.previousSibling;
 
@@ -2525,8 +2384,7 @@ if ( typeof( ddt ) == 'undefined' )
 
 					ddt.log( "_getWord(): moving to previousSibling length '" + caret_position + "'" );
 
-					if ( caret_position == -1 )
-						{
+					if ( caret_position == -1 ) {
 
 						// empty text nodes seem to be inserted by WebKit randomly.
 
@@ -2534,14 +2392,13 @@ if ( typeof( ddt ) == 'undefined' )
 
 						continue;
 
-						}
+					}
 
-					}	// end of if we are at the beginning of a textnode.
+				} // end of if we are at the beginning of a textnode.
 
 				// do we have a zero width space character? 
 
-				if ( dom_node.nodeValue.charAt( caret_position ) == '\u200B' )
-					{
+				if ( dom_node.nodeValue.charAt( caret_position ) == '\u200B' ) {
 
 					ddt.log( "_getWord(): skipping zero width space character" );
 
@@ -2549,12 +2406,11 @@ if ( typeof( ddt ) == 'undefined' )
 
 					continue;
 						
-					}
+				}
 
 				ddt.log( "_getWord(): Not a zero width space. Is it a space character?" );
 								
-				if ( dom_node.nodeValue.charAt( caret_position ).match( /\s+/ ))
-					{
+				if ( dom_node.nodeValue.charAt( caret_position ).match( /\s+/ )) {
 
 					// we've found a space character and thus the beginning of a word.
 
@@ -2562,20 +2418,17 @@ if ( typeof( ddt ) == 'undefined' )
 
 					break;
 
-					}
-				else
-					{
+				} else {
 					// found a normal character
 
 					found_char_flag = true;
-					}
-
+				}
 
 				ddt.log( "_getWord(): '" + dom_node.nodeValue.charAt( caret_position) + "' not a space." );
 
 				caret_position--;
 
-				}	// end of while loop.
+			} // end of while loop.
 
 			// --------------------------------
 			// Arrive here when we've found the beginning of a word taking multiple text nodes
@@ -2589,13 +2442,12 @@ if ( typeof( ddt ) == 'undefined' )
 
 			// if we only matched whitespace, abort.
 
-			if (! found_char_flag )
-				{
+			if (! found_char_flag ) {
 
 				ddt.log( "_getWord(): only found whitespace" );
 
 				return false;
-				}
+			}
 
 			ddt.log( "_getWord(): found a the beginning of a word, now searching for the end." );
 
@@ -2605,7 +2457,7 @@ if ( typeof( ddt ) == 'undefined' )
 
 			return word;
 
-			},	// end  of _getWord()
+		}, // end  of _getWord()
 
 		/**
 		* check for the presence of an object
@@ -2630,8 +2482,7 @@ if ( typeof( ddt ) == 'undefined' )
 		* @return {Object} with keys dom_node and container_spanned
 		*/
 
-		_checkForAdjacentObject: function( direction )
-			{
+		_checkForAdjacentObject: function( direction ) {
 
 			var location = {};
 			var dom_node = null;
@@ -2640,10 +2491,9 @@ if ( typeof( ddt ) == 'undefined' )
 			// when the editable div is first loaded and we have not yet 
 			// clicked in the window, we may not have a current caret position.
 
-			if ( ! ( location = this._getCaretPosition() ))
-				{	
+			if ( ! ( location = this._getCaretPosition() )) {	
 				return false;
-				}
+			}
 
 			dom_node = location.dom_node;
 
@@ -2651,18 +2501,16 @@ if ( typeof( ddt ) == 'undefined' )
 
 			// SPECIAL CASE: if the node is clicked on by the mouse, we will, in FireFox, get the embedded object node.
 
-			if ( this._isEmbeddedObject( dom_node ) )
-				{
+			if ( this._isEmbeddedObject( dom_node ) ) {
 				ddt.log( "_checkForAdjacentObject(): current node is an object. returning" );
 
 				return { dom_node: dom_node, container_spanned: false, preventDefault: true };
-				}
+			}
 
-			if (( location = this._treeWalker( location.dom_node, location.offset, direction )) == false )
-				{
+			if (( location = this._treeWalker( location.dom_node, location.offset, direction )) == false ) {
 				ddt.log( "_checkForAdjacentObject(): none found" );
 				return false;
-				}
+			}
 
 			ddt.log( "_checkForAdjacentObject(): _treeWalker returned: ", location );
 
@@ -2671,66 +2519,54 @@ if ( typeof( ddt ) == 'undefined' )
 			//
 			// But we should look to the left. 
 
-			if ( $( dom_node ).filter( '[_moz_dirty]' ).length != 0 )
-				{
+			if ( $( dom_node ).filter( '[_moz_dirty]' ).length != 0 ) {
 
-				if ( direction == 'left' )
-					{
+				if ( direction == 'left' ) {
 
 					// look left for an object. 
 
-					if (( location = this._treeWalker( location.dom_node.previousSibling, location.offset, direction )) == false )
-						{
+					if (( location = this._treeWalker( location.dom_node.previousSibling, location.offset, direction )) == false ) {
 						ddt.log( "_checkForAdjacentObject(): none found" );
 						return false;
-						}
-
 					}
-				else
-					{
+
+				} else {
 					ddt.log( "_checkForAdjacentObject(): current node is a moz_dirty filthy BR. don't look right." );
 
 					return false;
-					}
 				}
+			}
 
 			// if we are pointing at the beginning or end of a text node, we might be right beside
 			// an embedded object. check the previous/next node
 
-			if ( location.dom_node.nodeType == 3 )
-				{
+			if ( location.dom_node.nodeType == 3 ) {
 
 				ddt.log( "_checkForAdjacentObject(): _treeWalker returned a text node with offset '" + location.offset + "'" );
 
-				if (( direction == 'left' ) && ( location.offset == 0 ))
-					{
+				if (( direction == 'left' ) && ( location.offset == 0 )) {
 
-					if ( this._isEmbeddedObject( location.dom_node.previousSibling ) )
-						{
+					if ( this._isEmbeddedObject( location.dom_node.previousSibling ) ) {
 						return { dom_node: location.dom_node.previousSibling, container_spanned: ! location.checkForObjects, preventDefault: location.preventDefault };
-						}
-
 					}
-				else if (( direction == 'right' ) && ( location.offset == location.dom_node.nodeValue.length ))
-					{
 
-					if ( this._isEmbeddedObject( location.dom_node.nextSibling ) )
-						{
+				} else if (( direction == 'right' ) && ( location.offset == location.dom_node.nodeValue.length )) {
+
+					if ( this._isEmbeddedObject( location.dom_node.nextSibling ) ) {
 						return { dom_node: location.dom_node.nextSibling, container_spanned: ! location.checkForObjects, preventDefault: location.preventDefault };
-						}
-
 					}
 
 				}
 
-			if ( ! this._isEmbeddedObject( location.dom_node ) )
-				{
+			}
+
+			if ( ! this._isEmbeddedObject( location.dom_node ) ) {
 				return false;
-				}
+			}
 
 			return { dom_node: location.dom_node, container_spanned: ! location.checkForObjects, preventDefault: location.preventDefault };
 
-			},	// end of _checkForAdjacentObject()
+		}, // end of _checkForAdjacentObject()
 
 		/**
 		* have we selected an object with the mouse?
@@ -2742,36 +2578,33 @@ if ( typeof( ddt ) == 'undefined' )
 		* @return {Node|Boolean} dom_node of object or false if not an object.
 		*/
 
-		_clickedOnObject: function( dom_node )
-			{
+		_clickedOnObject: function( dom_node ) {
 
 			ddt.log( "_clickedOnObject(): got current node : ", dom_node );
 
 			// it's an object if it or some ancestor in the editable div has 
 			// a data-value. 
 
-			while ( $( dom_node ).attr( 'id' ) != this.element.attr( 'id' ) )
-				{
+			while ( $( dom_node ).attr( 'id' ) != this.element.attr( 'id' ) ) {
 
-				if ( this._isEmbeddedObject( dom_node ) )
-					{
+				if ( this._isEmbeddedObject( dom_node ) ) {
 
 					ddt.log( "_clickedOnObject(): found object node '" + dom_node + "'" );
 
 					return dom_node;
-					}
+				}
 
 				dom_node = dom_node.parentNode;
 
 				ddt.log( "_clickedOnObject(): checking parent node : ", dom_node );
 
-				}
+			}
 
 			ddt.log( "_clickedOnObject(): user did not click on an object" );
 
 			return false;
 
-			},	// end of clickedOnObject()
+		}, // end of clickedOnObject()
 
 		/**
 		* delete an inserted object
@@ -2783,8 +2616,7 @@ if ( typeof( ddt ) == 'undefined' )
 		* @param {Node} dom_node the DOM node representing the embedded object to delete.
 		*/
 
-		deleteObject: function( dom_node )
-			{
+		deleteObject: function( dom_node ) {
 
 			ddt.log( "deleteObject(): top with node: ", dom_node );
 
@@ -2808,8 +2640,7 @@ if ( typeof( ddt ) == 'undefined' )
 			// was this object the only remaining object in our parent? 
 
 			if (( $( parent ).attr( 'id' ) != this.element.attr( 'id' ) ) &&
-				( parent.childNodes.length == 0 ))
-				{
+				( parent.childNodes.length == 0 )) {
 
 				ddt.log( "deleteObject(): last element of container deleted. Deleting container." );
 
@@ -2821,13 +2652,13 @@ if ( typeof( ddt ) == 'undefined' )
 				sel.removeAllRanges();
 				sel.addRange( range );
 
-				}
+			}
 
 			this._saveRange();
 
 			return;
 
-			},	// end of deleteObject()
+		}, // end of deleteObject()
 
 		/**
 		* skip over zero width space characters in a textnode.
@@ -2851,70 +2682,60 @@ if ( typeof( ddt ) == 'undefined' )
 		* @see _onMouseUp()
 		*/
 
-		_moveCaret: function( dom_node, caret_position, direction )
-			{
+		_moveCaret: function( dom_node, caret_position, direction ) {
 
 		 	var loop_count = 0;
 			var location = {};
 
 			ddt.log( "_moveCaret(): top with direction '" + direction + "' with node: ", dom_node );
 
-			if (( location = this._treeWalker( dom_node, caret_position, direction )) == false )
-				{
+			if (( location = this._treeWalker( dom_node, caret_position, direction )) == false ) {
 				ddt.log( "_moveCaret(): _treeWalker returned false" );
 
 				return false;
-				}
+			}
 
 			ddt.log( "_moveCaret(): _treeWalker() returned location: ", location );
 
 			// do we have an object?
 
-			if ( location.type == 'object' )
-				{
+			if ( location.type == 'object' ) {
 
 				// position the caret before or behind the object. 
 				//
 				// NOTE: in this scenario we've just moved the caret towards the object,
 				// so we want to stop at the object and not jump over it.
 
-				if ( direction == 'left' )
-					{
+				if ( direction == 'left' ) {
 					this._setCaretPositionRelative( location.dom_node, 'after' );
-					}
-				else
-					{
+				} else {
 					this._setCaretPositionRelative( location.dom_node, 'before' );
-					}
+				}
 
 				return location;
 
-				}
+			}
 
 			// special handling if we were in a container and just stepped out.
 			
-			if ( location.type == 'container' )
-				{
+			if ( location.type == 'container' ) {
 				
 				ddt.log( "_moveCaret(): we were in a container and have stepped out. Selecting '" + direction + "' side" );
 
-				if ( direction == 'left' )
-					{
+				if ( direction == 'left' ) {
 
 					// we may have a text node, a container, or some other element as our previousSibling. 
 					// If it's a container, we want to select the last child in it. 
 
 					if (( location.dom_node.previousSibling.nodeName == 'DIV' ) ||
-						( location.dom_node.previousSibling.nodeName == 'P' ))
-						{
+						( location.dom_node.previousSibling.nodeName == 'P' )) {
 
 						// guard against an empty container
 
-						if ( location.dom_node.previousSibling.childNodes.length == 0 )
-							{
+						if ( location.dom_node.previousSibling.childNodes.length == 0 ) {
 							ddt.error( "_moveCaret(): empty container previousSibling" );
 							return false;
-							}
+						}
 
 						ddt.log( "_moveCaret(): moving into container: '" + location.dom_node.previousSibling + "' from '" + location.dom_node + "'" );
 
@@ -2924,13 +2745,12 @@ if ( typeof( ddt ) == 'undefined' )
 
 						return location;
 
-						}	// end of if we had a container.
+					} // end of if we had a container.
 
 					// if it's a textnode, to work around issues in FireFox, we want to select the end
 					// of the textnode. 
 
-					if ( location.dom_node.previousSibling.nodeType == 3 )
-						{
+					if ( location.dom_node.previousSibling.nodeType == 3 ) {
 
 						ddt.log( "_moveCaret(): previousSibling is a textnode" );
 
@@ -2938,20 +2758,19 @@ if ( typeof( ddt ) == 'undefined' )
 
 						// Chrome may cause us grief with a 0 width text node here. 
 
-						if	( location.dom_node.nodeValue.length == 0 )
-							{
+						if ( location.dom_node.nodeValue.length == 0 ) {
 
 							// FIXME: not sure what to do in this case, if it ever occurs.
 
 							ddt.error( "_moveCaret(): previousSibling is a zero length textnode." );
 							return false;
-							}
+						}
 
 						this._setCaretPositionRelative( location.dom_node, 'end' );
 
 						return location;
 
-						}	// end of if we had a text node.
+					} // end of if we had a text node.
 
 					location.dom_node = location.dom_node.previousSibling;
 
@@ -2963,75 +2782,67 @@ if ( typeof( ddt ) == 'undefined' )
 
 					return location;
 
-					}
-				else
-					{
+				} else {
 
 					// FIXME: Moving to the right seems less problematic across the board.
 
 					// to avoid errors when we right arrowing at end the of the editable div.
 
-					if ( location.dom_node.nextSibling == null )
-						{
+					if ( location.dom_node.nextSibling == null ) {
 
 						ddt.log( "_moveCaret(): nextSibling is null in container. setting position 'after' with node:", location.dom_node );
 
 						this._setCaretPositionRelative( location.dom_node, 'after' );
 						return location;
-						}
+					}
 
 					// we may have some normal node like a text node or we may have a container 
 					// as our nextSibling. We can't select the container, we want to select the
 					// end of it. 
 
 					if (( location.dom_node.nextSibling.nodeName == 'DIV' ) ||
-						( location.dom_node.nextSibling.nodeName == 'P' ))
-						{
+						( location.dom_node.nextSibling.nodeName == 'P' )) {
 
 						// guard against an empty container
 
-						if ( location.dom_node.nextSibling.childNodes.length == 0 )
-							{
+						if ( location.dom_node.nextSibling.childNodes.length == 0 ) {
 							ddt.error( "_moveCaret(): empty container nextSibling" );
 							return false;
-							}
+						}
 
 						location.dom_node = location.dom_node.nextSibling.childNodes[ 0 ];
 
-						}
+					}
 
 					this._setCaretPositionRelative( location.dom_node, 'after' );
 
-					}
+				}
 
 				return location;
 								
-				}	// end of if we came out of a container.
+			} // end of if we came out of a container.
 
 			// special handling if we just stepped into a container. WebKit is fond of adding zero 
 			// width text nodes at the ends of containers.
 
-			if ( location.type == 'child' )
-				{
+			if ( location.type == 'child' ) {
 
 				ddt.log( "_moveCaret(): handling special stepping into child case" );
 
 				// If we're moving into a text node at the beginning of a container
 
-				if ( location.dom_node.nodeType == 3 ) 
-					{
+				if ( location.dom_node.nodeType == 3 ) {
 
 					// FIXME: kept here for posterity as a reminder that we can get 0 length nodes
 					// here.
 
-					if ( location.dom_node.nodeValue.length == 0 )
-						{
+					if ( location.dom_node.nodeValue.length == 0 ) {
 						ddt.log( "_moveCaret(): zero width text node. selecting it." );
 					
 						this._selectTextNode( location.dom_node, 0 );
 
 						return location;
-						}
+					}
 
 					ddt.log( "_moveCaret(): text node child with some content. selecting it" );
 
@@ -3042,44 +2853,40 @@ if ( typeof( ddt ) == 'undefined' )
 					// we are a location type of 'child' onKeyDown will not jump over any adjacent objects.
 
 					return location;
-					}
+				}
 															
 				// since we just jumped into a container presumably, we don't want to 
 				// jump over any objects we happen to be next to.
 
 				return location;
 
-				}	// end of if we moved into a child container.
+			} // end of if we moved into a child container.
 										
 			// text node.
 
-			if ( location.dom_node.nodeType == 3 )
-				{
+			if ( location.dom_node.nodeType == 3 ) {
 
 				ddt.log( "_moveCaret(): selecting text node for direction '" + direction + "' :", location );
 
 				this._selectTextNode( location.dom_node, location.offset );
 
 				return location;
-				}
+			}
 
 			// For mozilla, move the cursor to the far side of a <BR _moz_dirty=""> tag. 
 
-			if ( location.dom_node.nodeName == 'BR' )
-				{
+			if ( location.dom_node.nodeName == 'BR' ) {
 
 				ddt.log( "_moveCaret(): we have a BR" );
 
 				// is this a mozilla _moz_dirty BR? 
 
-				if ( $( location.dom_node ).filter( '[_moz_dirty]' ).length != 0 )
-					{
+				if ( $( location.dom_node ).filter( '[_moz_dirty]' ).length != 0 ) {
 
 					// we've come up on a BR in mozilla, which is used to mark the end
 					// of lines.
 
-					if ( direction == 'left' )
-						{
+					if ( direction == 'left' ) {
 
 						ddt.log( "_moveCaret(): moving to left side of _moz_dirty BR starting with location:", location );
 
@@ -3094,9 +2901,7 @@ if ( typeof( ddt ) == 'undefined' )
 
 						return location;
 
-						}
-					else
-						{
+					} else {
 						ddt.log( "_moveCaret(): moving to right side of _moz_dirty BR" );
 
 						// just move to the right of the BR which represents moving down to the 
@@ -3107,28 +2912,25 @@ if ( typeof( ddt ) == 'undefined' )
 
 						return location;
 
-						}
+					}
 
-					}	// end of if we had a _moz_dirty BR.
+				} // end of if we had a _moz_dirty BR.
 
 				// some other normal BR.
 
 				ddt.log( "_moveCaret(): normal BR" );
 
-				if ( direction == 'left' )
-					{
+				if ( direction == 'left' ) {
 					this._setCaretPositionRelative( location.dom_node, 'before' );
-					}
-				else
-					{
+				} else {
 					this._setCaretPositionRelative( location.dom_node, 'after' );
-					}
-
 				}
+
+			}
 
 			return location;
 
-			},	// end of _moveCaret()
+		}, // end of _moveCaret()
 
 		/**
 		* backspace over zero width space character
@@ -3142,8 +2944,7 @@ if ( typeof( ddt ) == 'undefined' )
 		* @return {String|Boolean} true if characters were removed, false if nothing changed, 'stop' if we encountered a stop word
 		*/
 
-		_backspaceZeroSpace: function()
-			{
+		_backspaceZeroSpace: function() {
 
 			var dom_node = null;
 			var delete_flag = false;
@@ -3161,18 +2962,16 @@ if ( typeof( ddt ) == 'undefined' )
 
 			ddt.log( "_backspaceZeroSpace(): current dom node is :", dom_node );
 
-			if (( dom_node.nodeType != 3 ) && ( dom_node.nodeName != 'BR' ))
-				{
+			if (( dom_node.nodeType != 3 ) && ( dom_node.nodeName != 'BR' )) {
 				
 				ddt.log( "_backspaceZeroSpace(): backspacing over a NON-BR '" + dom_node.nodeName + "' node" );
 
 				return false;
-				}
+			}
 			
 			// BR's have to be handled specially.
 			
-			if ( dom_node.nodeName == 'BR' )
-				{
+			if ( dom_node.nodeName == 'BR' ) {
 
 				ddt.log( "_backspaceZeroSpace(): backspacing over BR" );
 
@@ -3181,18 +2980,16 @@ if ( typeof( ddt ) == 'undefined' )
 				//
 				// see _onKeyDown BACKSPACE
 
-				if ( $( dom_node ).filter( '[_moz_dirty]' ).length != 0 )
-					{
+				if ( $( dom_node ).filter( '[_moz_dirty]' ).length != 0 ) {
 					ddt.log( "_backspaceZeroSpace(): moz_dirty filthy BR encountered. Stop word" );
 
 					return 'stop';
-					}
+				}
 
 				// depends on what we find in front of the BR. Could be a textnode, could be some
 				// other element or might be the beginning of a container.
 
-				if ( dom_node.previousSibling == null )
-					{
+				if ( dom_node.previousSibling == null ) {
 
 					ddt.log( "_backspaceZeroSpace(): beginning of container" );
 
@@ -3203,10 +3000,9 @@ if ( typeof( ddt ) == 'undefined' )
 					// tell the caller we moved the cursor.
 
 					return true;
-					}
+				}
 
-				if ( dom_node.previousSibling.nodeType != 3 )
-					{
+				if ( dom_node.previousSibling.nodeType != 3 ) {
 
 					ddt.log( "_backspaceZeroSpace(): previous element is NOT a textnode :", dom_node.previousSibling );
 
@@ -3218,25 +3014,24 @@ if ( typeof( ddt ) == 'undefined' )
 
 					return true;
 
-					}
+				}
 
 				// arrive here if we have a text node. move the cursor to the end of the text node.
 
 				this._setCaretPositionRelative( dom_node.previousSibling, 'end' );
 				$( dom_node ).remove();
 
-				}
+			}
 
 			// arrive here if we have a text node for an end point.
 
 			end_location = this._getCaretPosition();
 
-			if (( start_location = this._walkTextNode( end_location.dom_node, end_location.offset, 'left' )) == false )
-				{
+			if (( start_location = this._walkTextNode( end_location.dom_node, end_location.offset, 'left' )) == false ) {
 				ddt.error( "_backspaceZeroSpace(): walkTextNode return false" );
 
 				return false;
-				}
+			}
 
 			ddt.log( "_backspaceZeroSpace(): got start_location: ", start_location );
 
@@ -3246,14 +3041,11 @@ if ( typeof( ddt ) == 'undefined' )
 			// the start_location may be an element (object) which we do not want to delete here.
 			// this method should just delete the zerospace chars.
 
-			if ( start_location.dom_node.nodeType != 3 )
-				{
+			if ( start_location.dom_node.nodeType != 3 ) {
 				range.setStartAfter( start_location.dom_node );
-				}
-			else
-				{
+			} else {
 				range.setStart( start_location.dom_node, start_location.offset );
-				}
+			}
 
 			range.setEnd( end_location.dom_node, end_location.offset );
 			range.deleteContents();
@@ -3265,7 +3057,7 @@ if ( typeof( ddt ) == 'undefined' )
 
 			return true;
 
-			},	// end of _backspaceZeroSpace()
+		}, // end of _backspaceZeroSpace()
 
 		/**
 		* delete over zero width space character
@@ -3277,8 +3069,7 @@ if ( typeof( ddt ) == 'undefined' )
 		* @return {String|Boolean} true if characters were removed, false if nothing changed, 'stop' if we encountered a stop word
 		*/
 
-		_deleteZeroSpace: function()
-			{
+		_deleteZeroSpace: function() {
 
 			var dom_node = null;
 			var delete_flag = false;
@@ -3296,35 +3087,32 @@ if ( typeof( ddt ) == 'undefined' )
 
 			// Unlike backspace, all we care about are non-printing text nodes.
 
-			if ( start_location.dom_node.nodeType != 3 )
-				{
+			if ( start_location.dom_node.nodeType != 3 ) {
 				
 				ddt.log( "_deleteZeroSpace(): deleting NON-TEXT '" + start_location.dom_node.nodeName + "' node" );
 
 				return false;
-				}
+			}
 			
 			// we have a text node.
 
-			if (( end_location = this._walkTextNode( start_location.dom_node, start_location.offset, 'right' )) == false )
-				{
+			if (( end_location = this._walkTextNode( start_location.dom_node, start_location.offset, 'right' )) == false ) {
 				ddt.error( "_deleteZeroSpace(): walkTextNode return false" );
 
 				return false;
-				}
+			}
 
 			ddt.log( "_deleteZeroSpace(): got start and end_location: ", start_location, end_location );
 
 			// if we did not skip over any non-printing characters, do nothing.
 			// NOTE: === comparison here checks to see if the two nodes are the same node, not just the same type.
 
-			if (( start_location.dom_node === end_location.dom_node ) && ( start_location.offset == end_location.offset ))
-				{
+			if (( start_location.dom_node === end_location.dom_node ) && ( start_location.offset == end_location.offset )) {
 
 				ddt.log( "_deleteZeroSpace(): _walkTextNode() did not move cursor" );
 
 				return false;
-				}
+			}
 
 			sel = RANGE_HANDLER.getSelection();
 			range = CREATERANGE_HANDLER.createRange();
@@ -3334,16 +3122,13 @@ if ( typeof( ddt ) == 'undefined' )
 			// the end_location may be an element (object) which we do not want to delete here.
 			// this method should just delete the zerospace chars.
 
-			if ( end_location.dom_node.nodeType != 3 )
-				{
+			if ( end_location.dom_node.nodeType != 3 ) {
 				ddt.log( "_deleteZeroSpace(): setting end of range before dom_node" );
 				range.setEndBefore( end_location.dom_node );
-				}
-			else
-				{
+			} else {
 				ddt.log( "_deleteZeroSpace(): setting end of range at offset '" + end_location.offset + "'" );
 				range.setEnd( end_location.dom_node, end_location.offset );
-				}
+			}
 
 			range.deleteContents();
 
@@ -3354,8 +3139,7 @@ if ( typeof( ddt ) == 'undefined' )
 
 			return true;
 
-			},	// end of _deleteZeroSpace()
-
+		}, // end of _deleteZeroSpace()
 
 		/**
 		* walk through document nodes forwards or backwards searching for text/object boundaries
@@ -3365,7 +3149,7 @@ if ( typeof( ddt ) == 'undefined' )
 		*
 		*	an embedded object
 		*	a non zero width text node character
-		*  a container element
+		*	a container element
 		*	the beginning or end end of a parent container.
 		*	a moz_dirty BR
 		*
@@ -3386,8 +3170,7 @@ if ( typeof( ddt ) == 'undefined' )
 		* @todo only P and DIVs are used as containers in Chrome/MSIE. Need to generalize support for other containers such as bold, lists, etc.
 		*/
 		
-		_treeWalker: function( dom_node, caret_position, direction )
-			{
+		_treeWalker: function( dom_node, caret_position, direction ) {
 
 			var location = { type: '' };
 			var loop_brake = 100;
@@ -3403,30 +3186,26 @@ if ( typeof( ddt ) == 'undefined' )
 									
 			ddt.log( "_treeWalker(): top searching '" + direction + "' caret_position '" + caret_position + "' current node: ", dom_node );
 
-			while ( dom_node != null )
-				{
+			while ( dom_node != null ) {
 
 				// to avoid those times I make a mistake and lock the browser.
 
-				if ( loop_brake-- <= 0 )
-					{
+				if ( loop_brake-- <= 0 ) {
 					ddt.error( "_treeWalker(): runaway loop" );
 					return false;
-					}
+				}
 
 				// if we have a text node that contains anything other than zero width space characters we 
 				// return it.
 
-				if ( dom_node.nodeType == 3 )
-					{
+				if ( dom_node.nodeType == 3 ) {
 
 					ddt.log( "_treeWalker(): we have a text node with contents '" + dom_node.nodeValue + "' and caret_position '" + caret_position + "'" );
 
-					if (( location = this._walkTextNode( dom_node, caret_position, direction )) == false )
-						{
+					if (( location = this._walkTextNode( dom_node, caret_position, direction )) == false ) {
 						ddt.error( "_treeWalker(): walkTextNode returned false" );
 						return false;
-						}
+					}
 
 					ddt.log( "_treeWalker(): walkTextNode() returned: ", location );
 
@@ -3437,8 +3216,7 @@ if ( typeof( ddt ) == 'undefined' )
 					//	.	adjacent to an object
 					//	.	in a text node with non-zero-width space character.
 					
-					switch ( location.type )
-						{
+					switch ( location.type ) {
 							
 						case 'text':
 						
@@ -3446,31 +3224,27 @@ if ( typeof( ddt ) == 'undefined' )
 
 							// if we end up with a zero width textnode, loop around and do it again.
 
-							if ( location.dom_node.nodeValue.length > 0 )
-								{
+							if ( location.dom_node.nodeValue.length > 0 ) {
 								ddt.log( "_treeWalker(): _walkTextNode() returned a normal text node" );
 
 								location.preventDefault = preventDefault_flag;
 
 								return location;
-								}
+							}
 
 							ddt.log( "_treeWalker(): _walkTextNode() returned a 0 width text node" );
 								
-							if ( direction == 'left' )
-								{
+							if ( direction == 'left' ) {
 								dom_node = location.dom_node.previousSibling;
-								}
-							else
-								{
+							} else {
 								dom_node = location.dom_node.nextSibling;
-								}
+							}
 
 							caret_position = -1;
 
 							continue;
 
-							break;
+						break;
 
 						case 'element':
 						case 'object':
@@ -3482,7 +3256,7 @@ if ( typeof( ddt ) == 'undefined' )
 							dom_node = location.dom_node;
 							caret_position = -1;
 
-							break;
+						break;
 
 						// FIXME: should be named 'container_end' or similar. 
 
@@ -3500,7 +3274,7 @@ if ( typeof( ddt ) == 'undefined' )
 
 							dom_node = location.dom_node;
 
-							break;
+						break;
 
 						case 'end':
 
@@ -3510,14 +3284,13 @@ if ( typeof( ddt ) == 'undefined' )
 
 							return false;
 
-							break;
+						break;
 
-						}	// end of switching over _walkTextNode() reponses
+					} // end of switching over _walkTextNode() reponses
 
-					}	// end of we were dealing with a text node.
+				} // end of we were dealing with a text node.
 											
-				if ( this._isEmbeddedObject( dom_node ))
-					{
+				if ( this._isEmbeddedObject( dom_node )) {
 
 					// we have an embedded object.
 
@@ -3532,38 +3305,35 @@ if ( typeof( ddt ) == 'undefined' )
 
 					var check_for_objects = true;
 
-					if ( container_spanned_flag )
-						{
+					if ( container_spanned_flag ) {
 						check_for_objects = false;
-						}
+					}
 
 					return { dom_node: dom_node, offset: -1, type: 'object', preventDefault: preventDefault_flag, checkForObjects: check_for_objects };
 
-					}
+				}
 				
-				if ( dom_node.nodeName == 'BR' )
-					{
+				if ( dom_node.nodeName == 'BR' ) {
 
 					// we have a BR. skip over it unless it's a moz_dirty which indicates a
 					// stopping point.
 
 					ddt.log( "_treeWalker(): we have a BR" );
 
-					if ( $( dom_node ).filter( '[_moz_dirty]' ).length != 0 )
-						{
+					if ( $( dom_node ).filter( '[_moz_dirty]' ).length != 0 ) {
 
 						ddt.log( "_treeWalker(): we have a _moz_dirty BR. stopping" );
 
 						return { dom_node: dom_node, offset: -1, type: 'element', preventDefault: preventDefault_flag, checkForObjects: false };
 
-						}
+					}
 
 					// FIXME: Need to check this in all places where we can get BR's. If we have
 					// a few BR's in a row the user may press keys multiple times to get over them.
 
 					return { dom_node: dom_node, offset: -1, type: 'element', preventDefault: preventDefault_flag, checkForObjects: false };
 
-					}
+				}
 
 				// special handling for a container we encounter. We dive into the container and start
 				// from the end based on direction, but only if we haven't just stepped out of the same
@@ -3572,8 +3342,7 @@ if ( typeof( ddt ) == 'undefined' )
 				if (( location.type != 'container' ) &&
 					(( dom_node.nodeName == 'DIV' ) ||
 					( dom_node.nodeName == 'SPAN' ) ||
-					( dom_node.nodeName == 'P' )))
-					{
+					( dom_node.nodeName == 'P' ))) {
 
 					ddt.log( "_treeWalker(): we have found a container of type '" + dom_node.nodeName + "' :", dom_node );
 
@@ -3604,29 +3373,25 @@ if ( typeof( ddt ) == 'undefined' )
 					//
 					// does our container have children?
 
-					if ( dom_node.childNodes.length == 0 )
-						{
+					if ( dom_node.childNodes.length == 0 ) {
 						ddt.log( "_treeWalker(): container with 0 children. adding text node and returning." );
 
 						var textnode = this._insertEmptyNode( dom_node, 'child' );
 						return { dom_node: textnode, offset: 0, type: 'child', preventDefault: preventDefault_flag, checkForObjects: false };
-						}
+					}
 
 					// inspect the child node at the end.
 
 					var child_node = null;
 
-					if ( direction == 'left' )
-						{
+					if ( direction == 'left' ) {
 
 						ddt.log( "_treeWalker(): LEFT: getting child of container at position '" + (dom_node.childNodes.length - 1) + "'" );
 
 						child_node = dom_node.childNodes[ dom_node.childNodes.length - 1 ];
-						}
-					else
-						{
+					} else {
 						child_node = dom_node.childNodes[ 0 ];
-						}
+					}
 
 					// guard against the possibility of some other unexpected markup making it 
 					// into the DIV.
@@ -3638,25 +3403,23 @@ if ( typeof( ddt ) == 'undefined' )
 						( ! this._isEmbeddedObject( child_node )) &&
 						( child_node.nodeName != 'DIV' ) &&
 						( child_node.nodeName != 'P' ) &&
-						( child_node.nodeName != 'BR' ))
-						{
+						( child_node.nodeName != 'BR' )) {
 						ddt.log( "_treeWalker(): returning a container that has an element child node '" + child_node.nodeName + "'" );
 
 						return { dom_node: dom_node, offset: -1, type: 'child', preventDefault: preventDefault_flag, checkForObjects: false };
-						}
+					}
 
 					// HACK: special check for Chrome. Make sure to stop if we enter into a DIV containing
 					// just a zero width space character. Otherwise after the user presses enter a bunch of times
 					// we may end up skipping lines on moving LEFT or RIGHT.
 
 					if (( child_node.nodeType == 3 ) &&
-						( child_node.nodeValue.match( /^[\u200B]+$/ ) != null ))
-						{
+						( child_node.nodeValue.match( /^[\u200B]+$/ ) != null )) {
 						ddt.log( "_treeWalker(): webKit hack. empty DIV with zero width space. Stopping" );
 
 						return { dom_node: child_node, offset: 0, type: 'child', preventDefault: preventDefault_flag, checkForObjects: false };
 
-						}
+					}
 
 					ddt.log( "_treeWalker(): bottom of loop, container with '" + dom_node.childNodes.length + "' children, child at end of container is:", child_node );
 
@@ -3664,7 +3427,7 @@ if ( typeof( ddt ) == 'undefined' )
 
 					continue;
 
-					}	// end of if we found a container
+				} // end of if we found a container
 
 				// this is not the node you are looking for, move along.
 				//
@@ -3672,22 +3435,20 @@ if ( typeof( ddt ) == 'undefined' )
 				// container and our parent is not the editable node. move up a level.
 
 				if ((( direction == 'left' ) && ( dom_node.previousSibling == null )) ||
-					(( direction == 'right' ) && ( dom_node.nextSibling == null )))
-					{
+					(( direction == 'right' ) && ( dom_node.nextSibling == null ))) {
 
 					ddt.log( "_treeWalker(): we have come to an end of a container." );
 
 					// if our parent is the contenteditable div, then we have come to the end and have not 
 					// found what we were looking for.
 
-					if ( $( dom_node.parentNode).attr( 'id' ) == this.element.attr( 'id' ) )
-						{
+					if ( $( dom_node.parentNode).attr( 'id' ) == this.element.attr( 'id' ) ) {
 
 						ddt.log( "_treeWalker(): we have come to the beginning or end of the editable div and not found a stopping point" );
 
 						return false;
 
-						}
+					}
 
 					// otherwise move up a level and continue walking.
 
@@ -3695,28 +3456,25 @@ if ( typeof( ddt ) == 'undefined' )
 
 					ddt.log( "_treeWalker(): moving up to parent level: ", dom_node );
 
-					}	// end of if we are at the beginning or end of a container
+				} // end of if we are at the beginning or end of a container
 
-				if ( direction == 'left' )
-					{
+				if ( direction == 'left' ) {
 					dom_node = dom_node.previousSibling;
-					}
-				else
-					{
+				} else {
 					dom_node = dom_node.nextSibling;
-					}
+				}
 
 				// we use location.type as an ugly flag;
 
 				location.type = '';
 
-				}	// end of while loop
+			} // end of while loop
 
 			ddt.error( "_treeWalker(): outside of while." );
 
 			return false;
 
-			},	//  end of _treeWalker()
+		}, //  end of _treeWalker()
 
 		/**
 		* skips zero width space characters
@@ -3740,68 +3498,58 @@ if ( typeof( ddt ) == 'undefined' )
 		* @return {Object|Boolean} with keys dom_node, offset and type. false on error.
 		*/
 
-		_walkTextNode: function( dom_node, caret_position, direction )
-			{
+		_walkTextNode: function( dom_node, caret_position, direction ) {
 
 			var loop_brake = 200;
 
 			// guard against getting some other node.
 
-			if ( dom_node.nodeType != 3 )
-				{
+			if ( dom_node.nodeType != 3 ) {
 				ddt.error( "_walkTextNode(): called with a '" + dom_node.nodeName + "' node" );
 				return false;
-				}
+			}
 
 			// -1 is a hack to indicate starting from one end or the other depending on direction.
 
-			if ( caret_position == -1 ) 
-				{
-				if ( direction == 'left' )
-					{
+			if ( caret_position == -1 ) {
+
+				if ( direction == 'left' ) {
 					caret_position = dom_node.nodeValue.length;
-					}
-				else
-					{
+				} else {
 					caret_position = 0;
-					}
 				}
+			}
 
 			ddt.log( "_walkTextNode(): direction '" + direction + "' starting with char is '" + dom_node.nodeValue.charAt( caret_position ) + "' at position '" + caret_position + "' length '" + dom_node.nodeValue.length + "' parent is :", dom_node.parentNode );
 
 			// remember that we can inconveniently have zerospace characters anywhere after
 			// inserts of lines and objects and subsequent deletes.
 
-			switch ( direction )
-				{
+			switch ( direction ) {
 
 				case 'left':
 
 					var check_siblings = false;
 
-					if ( caret_position == 0 )
-						{
+					if ( caret_position == 0 ) {
 						check_siblings = true;
-						}
+					}
 
-					while ( true )
-						{
+					while ( true ) {
 
 						ddt.log( "_walkTextNode(): top of left loop, char is '" + dom_node.nodeValue.charAt( caret_position ) + "' at position '" + caret_position + "' length '" + dom_node.nodeValue.length + "'" );
 
 						// for when I make a mistake and loop endlessly.
 
-						if ( loop_brake-- <= 0 )
-							{
+						if ( loop_brake-- <= 0 ) {
 							ddt.error( "_walkTextNode(): runaway loop. braking" );
 							return false;
-							}
+						}
 
 						// if the caret is pointing at the first character of the string
 						// i.e. offset 0, check the previous node.
 
-						if ( check_siblings )
-							{
+						if ( check_siblings ) {
 		
 							check_siblings = false;
 
@@ -3809,18 +3557,17 @@ if ( typeof( ddt ) == 'undefined' )
 
 							// are we at the beginning of a container? 
 
-							if ( dom_node.previousSibling == null )
-								{
+							if ( dom_node.previousSibling == null ) {
+
 								ddt.log( "_walkTextNode(): beginning of container found." );
 
 								// we might be at the beginning of the editable div.
 
-								if ( $( dom_node.parentNode ).attr( 'id' ) == this.element.attr( 'id' ) )
-									{
+								if ( $( dom_node.parentNode ).attr( 'id' ) == this.element.attr( 'id' ) ) {
 									ddt.log( "_walkTextNode(): end of editable div" );
 
 									return { dom_node: dom_node, offset: 0, type: 'end', preventDefault: false, checkForObjects: true };
-									}
+								}
 
 								// we are at the beginning of a container. 
 								// The caller will check the container's previousSibling.
@@ -3829,12 +3576,11 @@ if ( typeof( ddt ) == 'undefined' )
 
 								return { dom_node: dom_node.parentNode, offset: -1, type: 'container', preventDefault: false, checkForObjects: true };
 
-								}	// end of if we reached the beginning of a container.
+							} // end of if we reached the beginning of a container.
 
 							// is the sibling not a text node?
 
-		  					if ( dom_node.previousSibling.nodeType != 3 )
-								{
+		  					if ( dom_node.previousSibling.nodeType != 3 ) {
 
 								ddt.log( "_walkTextNode(): previousSibling is NOT a text node:", dom_node.previousSibling );
 
@@ -3842,14 +3588,13 @@ if ( typeof( ddt ) == 'undefined' )
 
 								return { dom_node: dom_node, offset: -1, type: 'element', preventDefault: false, checkForObjects: true };
 
-								}
+							}
 
 							dom_node = dom_node.previousSibling;
 
 							// we always look to the left of the caret. Start past the end of the string.
 
-							if (( caret_position = dom_node.nodeValue.length ) == 0 )
-								{
+							if (( caret_position = dom_node.nodeValue.length ) == 0 ) {
 
 								// should not happen, no?
 
@@ -3861,77 +3606,70 @@ if ( typeof( ddt ) == 'undefined' )
 
 								continue;
 
-								}
+							}
 
-							}	// end of if we were at the beginning of a text node.
+						} // end of if we were at the beginning of a text node.
 
 						// the range startOffset returns the offset of the character to the
 						// the right of the caret. So, when searching left, we need to examine
 						// the previous character. Hence the -1 here.
 
-						if ( dom_node.nodeValue.charAt( caret_position - 1 ) != '\u200B' )
-							{
+						if ( dom_node.nodeValue.charAt( caret_position - 1 ) != '\u200B' ) {
 
 							ddt.log( "_walkTextNode(): Not a zero width space at position '" + caret_position + "' is a '" + dom_node.nodeValue.charCodeAt( caret_position - 1 ) + "'" );
 
 							return { dom_node: dom_node, offset: caret_position, type: 'text', preventDefault: false, checkForObjects: false };
 
-							}
+						}
 
 						ddt.log( "_walkTextNode(): found a zero width space char at offset '" + ( caret_position - 1 ) + "'" );
 
 						caret_position--;
 
-						if ( caret_position == 0 )
-							{
+						if ( caret_position == 0 ) {
 							check_siblings = true;
-							}
+						}
 
-						}	// end of while loop.
+					} // end of while loop.
 
 					ddt.error( "_walkTextNode(): bottom of left loop" );
 
 					return false;
 
-					break;
+				break;
 
 				// ----------------------------------------------------------
 
 				case 'right':
 
-					while ( true )
-						{
+					while ( true ) {
 
 						// for when I make a mistake.
 
-						if ( loop_brake-- <= 0 )
-							{
+						if ( loop_brake-- <= 0 ) {
 
 							ddt.error( "_walkTextNode(): runaway loop. braking" );
 
 							return false;
-							}
+						}
 
 						// we search to the end of the string.
 
-						if ( caret_position == dom_node.nodeValue.length )
-							{
+						if ( caret_position == dom_node.nodeValue.length ) {
 
 							ddt.log( "_walkTextNode(): we are at the end of the string." );
 		
-							if ( dom_node.nextSibling == null )
-								{
+							if ( dom_node.nextSibling == null ) {
 					
 								ddt.log( "_walkTextNode(): end of container found :", dom_node );
 
 								// we might be at the end of the editable div.
 
-								if ( $( dom_node.parentNode ).attr( 'id' ) == this.element.attr( 'id' ) )
-									{
+								if ( $( dom_node.parentNode ).attr( 'id' ) == this.element.attr( 'id' ) ) {
 									ddt.log( "_walkTextNode(): end of editable div" );
 
 									return { dom_node: dom_node, offset: caret_position, type: 'end', preventDefault: false, checkForObjects: false };
-									}
+								}
 
 								// we are at the end of a container. The call will check the
 								// container's nextSibling.
@@ -3941,8 +3679,7 @@ if ( typeof( ddt ) == 'undefined' )
 								// There is an edge case which is namely we do not want to step out of 
 								// the contenteditable div.
 
-								if ( $( dom_node.parentNode ).attr( 'id' ) == this.element.attr( 'id' ) )
-									{
+								if ( $( dom_node.parentNode ).attr( 'id' ) == this.element.attr( 'id' ) ) {
 
 									ddt.log( "_walkTextNode(): attempted to step out of editable div." );
 
@@ -3952,16 +3689,15 @@ if ( typeof( ddt ) == 'undefined' )
 
 									return { dom_node: textnode, offset: 0, type: 'end', preventDefault: false, checkForObjects: true };
 
-									}
+								}
 
 								return { dom_node: dom_node.parentNode, offset: -1, type: 'container', preventDefault: false, checkForObjects: true };
 
-								}
+							}
 
 							// we may encounter an element, likely a BR.
 
-		  					if ( dom_node.nextSibling.nodeType != 3 )
-								{
+		  					if ( dom_node.nextSibling.nodeType != 3 ) {
 
 								ddt.log( "_walkTextNode(): nextSibling is NOT a text node:", dom_node.nextSibling );
 
@@ -3969,7 +3705,7 @@ if ( typeof( ddt ) == 'undefined' )
 
 								return { dom_node: dom_node, offset: -1, type: 'element', preventDefault: false, checkForObjects: true };
 
-								}
+							}
 
 							ddt.log( "_walkTextNode(): moving to nextSibling" );
 
@@ -3979,8 +3715,7 @@ if ( typeof( ddt ) == 'undefined' )
 
 							// this should not happen, no?
 
-							if ( dom_node.nodeValue.length == 0 )
-								{
+							if ( dom_node.nodeValue.length == 0 ) {
 
 								// should not happen, no?
 
@@ -3988,30 +3723,31 @@ if ( typeof( ddt ) == 'undefined' )
 
 								continue;
 
-								}
-
 							}
 
-						if ( dom_node.nodeValue.charAt( caret_position ) != '\u200B' )
-							{
+						}
+
+						if ( dom_node.nodeValue.charAt( caret_position ) != '\u200B' ) {
 
 							ddt.log( "_walkTextNode(): Not a zero width space at position '" + caret_position + "'. Found '" + dom_node.nodeValue.charCodeAt( caret_position ) + "'" );
 
 							return { dom_node: dom_node, offset: caret_position, type: 'text', preventDefault: false, checkForObjects: true };
 
-							}
+						}
 
 						caret_position++;
 
-						}	// end of while loop.
+					} // end of while loop.
 
 					ddt.error( "_walkTextNode(): bottom of right loop :", dom_node );
 		
 					return false;
 
-				}	// end of switch
+				break;
 
-			},	// end of _walkTextNode()
+			} // end of switch
+
+		}, // end of _walkTextNode()
 
 		/**
 		* highlights objects
@@ -4021,8 +3757,7 @@ if ( typeof( ddt ) == 'undefined' )
 		* object on a backspace.
 		*/
 
-		_highlightObject: function()
-			{
+		_highlightObject: function() {
 
 			var object = false;
 
@@ -4036,33 +3771,29 @@ if ( typeof( ddt ) == 'undefined' )
 
 			ddt.log( "_highlightObject(): checking for prev object" );
 
-			if ( object = this._checkForAdjacentObject( 'left' ) )
-				{
+			if ( object = this._checkForAdjacentObject( 'left' ) ) {
 
 				ddt.log( "_highlightObject(): check for object to left returned:", object );
 
-				if ( ! object.container_spanned )
-					{
+				if ( ! object.container_spanned ) {
 					$( object.dom_node ).addClass( 'highlight' );
-					}
-
 				}
+
+			}
 
 			ddt.log( "_highlightObject(): checking for next object" );
 
-			if ( object = this._checkForAdjacentObject( 'right' ) )
-				{
+			if ( object = this._checkForAdjacentObject( 'right' ) ) {
 
 				ddt.log( "_highlightObject(): check for object to right returned:", object );
 
-				if ( ! object.container_spanned )
-					{
+				if ( ! object.container_spanned ) {
 					$( object.dom_node ).addClass( 'highlight' );
-					}
-
 				}
 
-			},	// end of _highlightObject()
+			}
+
+		}, // end of _highlightObject()
 
 		/**
 		* clears highlighting
@@ -4075,8 +3806,7 @@ if ( typeof( ddt ) == 'undefined' )
 		* @param {jQuery} jQuery object representing the contenteditable div.
 		*/
 
-		_unHighlightObjects: function( object )
-			{
+		_unHighlightObjects: function( object ) {
 
 			// now remove the highlight class from any of the other objects. 
 			//
@@ -4086,14 +3816,12 @@ if ( typeof( ddt ) == 'undefined' )
 
 			var rich_textarea = this;
 
-			object.children().each( function( index )
-				{
+			object.children().each( function( index ) {
 
 				// we only recurse into elements that are NOT one of our objects, identified by 
 				// the data-value attribute.
 
-				if ( rich_textarea._isEmbeddedObject( $(this).get(0) ) )
-					{
+				if ( rich_textarea._isEmbeddedObject( $(this).get(0) ) ) {
 
 					// ddt.log( "found element with data value: ", $(this).attr( 'data-value' ) );
 
@@ -4101,25 +3829,24 @@ if ( typeof( ddt ) == 'undefined' )
 
 					return;
 
-					}
+				}
 
 				// ddt.log( "_unHighlightObjects(): not an embedded object. checking for children of '" + $(this).prop( 'nodeName' ) + "' with '" + $(this).children().length + "'" );
 								
-				if ( $( this ).children().length > 0 )
-					{
+				if ( $( this ).children().length > 0 ) {
 
 					// ddt.log( "unHighlightObjects(): recursing into '" + $( this ).prop( 'nodeName' ) + "'" );
 
 					rich_textarea._unHighlightObjects( $( this ) );
 
-					}
+				}
 
-				});
+			});
 
 			// ddt.log( "_unHightlightObjects(): end" );
 
 
-			},	// end of _unHighlightObjects()
+		}, // end of _unHighlightObjects()
 
 		/**
 		* sets the caret to a position in a textnode
@@ -4128,19 +3855,17 @@ if ( typeof( ddt ) == 'undefined' )
 		* @param {Integer} offset offset in textnode to set caret to
 		*/
 
-		_selectTextNode: function( text_node, offset )
-			{
+		_selectTextNode: function( text_node, offset ) {
 
 			// if we do not receive a textnode it's an error
 
-			if ( text_node.nodeType != 3 )
-				{
+			if ( text_node.nodeType != 3 ) {
 
 				ddt.error( "_selectTextNode(): ERROR - node of type '" + text_node.nodeName + "' received." );
 
 				return false;
 
-				}
+			}
 
 			ddt.log( "_selectTextNode(): setting offset '" + offset + "' in text node of length '" + text_node.nodeValue.length + "'" );
 
@@ -4157,7 +3882,7 @@ if ( typeof( ddt ) == 'undefined' )
 
 			this._saveRange( range );
 
-			},
+		},
 
 		/**
 		* sets the caret position relative to a dom_node.
@@ -4177,21 +3902,18 @@ if ( typeof( ddt ) == 'undefined' )
 		* @see http://a-software-guy.com/2013/01/problems-with-range-setstartbefore/
 		*/
 
-		_setCaretPositionRelative: function( dom_node, position )
-			{
+		_setCaretPositionRelative: function( dom_node, position ) {
 			var sel = RANGE_HANDLER.getSelection();
 
 			var range = null;
 
 			ddt.log( "_setCaretPositionRelative(): moving '" + position + "' relative to :", dom_node );
 
-			if ( dom_node.previousSibling != null )
-				{
+			if ( dom_node.previousSibling != null ) {
 				ddt.log( "_setCaretPositionRelative(): with previousSibling: ", dom_node.previousSibling );
-				}
+			}
 
-			if ( this._isEmbeddedObject( dom_node ) )
-				{
+			if ( this._isEmbeddedObject( dom_node ) ) {
 
 				ddt.log( "_setCaretPositionRelative(): setting caret position '" + position + "' relative to an embedded object. getting object range." );
 
@@ -4202,8 +3924,7 @@ if ( typeof( ddt ) == 'undefined' )
 
 				ddt.log( "_setCaretPositionRelative(): got object range: ", range );
 
-				switch ( position )
-					{
+				switch ( position ) {
 					
 					case 'before':
 					case 'beginning':
@@ -4212,7 +3933,7 @@ if ( typeof( ddt ) == 'undefined' )
 
 						range.collapse( true );
 
-						break;
+					break;
 
 					case 'after':
 					case 'end':
@@ -4221,9 +3942,9 @@ if ( typeof( ddt ) == 'undefined' )
 
 						range.collapse( false );
 
-						break;
+					break;
 
-					}
+				}
 
 				sel.removeAllRanges()
 				sel.addRange( range );
@@ -4232,21 +3953,19 @@ if ( typeof( ddt ) == 'undefined' )
 
 				return;
 
-				}	// end of if we were selecting an inserted object.
+			} // end of if we were selecting an inserted object.
 
 			// selecting a single cursor position.
 
 			range = sel.getRangeAt(0);
 
-			switch ( position )
-				{
+			switch ( position ) {
 
 				case 'before':
 
 					// for a BR use the zero width space character trick and set the range explicitly.
 
-					if ( dom_node.nodeName == 'BR' )
-						{
+					if ( dom_node.nodeName == 'BR' ) {
 						ddt.log( "_setCaretPositionRelative(): 'before' with a 'BR'" );
 
 						var textnode = this._insertEmptyNode( dom_node, 'before' );
@@ -4254,7 +3973,7 @@ if ( typeof( ddt ) == 'undefined' )
 						this._setCaretPositionRelative( textnode, 'end' );
 
 						return;
-						}
+					}
 
 					range.setStartBefore( dom_node );
 					range.setEndBefore( dom_node );
@@ -4268,14 +3987,13 @@ if ( typeof( ddt ) == 'undefined' )
 
 					var caret = this._getCaretPosition();
 
-					break;
+				break;
 
 				case 'after':
 
 					// for a BR use the zero width space character trick and set the range explicitly.
 
-					if ( dom_node.nodeName == 'BR' )
-						{
+					if ( dom_node.nodeName == 'BR' ) {
 						ddt.log( "_setCaretPositionRelative(): 'after' with a 'BR'" );
 
 						// FIXME: this is probably a hack. For a BR, position the cursor
@@ -4293,7 +4011,7 @@ if ( typeof( ddt ) == 'undefined' )
 						this._saveRange();
 
 						break;
-						}
+					}
 
 					range.setStartAfter( dom_node );
 					range.setEndAfter( dom_node );
@@ -4305,17 +4023,16 @@ if ( typeof( ddt ) == 'undefined' )
 
 					this._saveRange();
 
-					break;
+				break;
 
 				case 'beginning':
 
 					// we only want this to work on text nodes
 
-					if ( dom_node.nodeType != 3 )
-						{
+					if ( dom_node.nodeType != 3 ) {
 						ddt.error( "_setCaretPositionRelative(): 'beginning not on a text node: ", dom_node );
 						return;
-						}
+					}
 
 					range.setStart( dom_node, 0 );
 					range.setEnd( dom_node, 0 );
@@ -4327,17 +4044,16 @@ if ( typeof( ddt ) == 'undefined' )
 
 					this._saveRange();
 
-					break;
+				break;
 
 				case 'end' :
 
 					// we only want this to work on text nodes
 
-					if ( dom_node.nodeType != 3 )
-						{
+					if ( dom_node.nodeType != 3 ) {
 						ddt.error( "_setCaretPositionRelative(): 'end not on a text node: ", dom_node );
 						return;
-						}
+					}
 
 					// 'end' is really one character past the end of the node per 
 					// docs: http://help.dottoro.com/ljlmndqh.php The range end is
@@ -4353,13 +4069,13 @@ if ( typeof( ddt ) == 'undefined' )
 
 					this._saveRange();
 
-					break;
+				break;
 
-				}
+			}
 
 			ddt.log( "_setCaretPositionRelative(): result range is: ", range );
 
-			},	
+		},	
 
 		/**
 		* determines the range surrounding an embedded object
@@ -4385,8 +4101,7 @@ if ( typeof( ddt ) == 'undefined' )
 		* @return {Range} range object. 
 		*/
 
-		_getObjectRange: function( dom_node )
-			{
+		_getObjectRange: function( dom_node ) {
 
 			ddt.log( "_getObjectRange(): top" );
 
@@ -4396,12 +4111,11 @@ if ( typeof( ddt ) == 'undefined' )
 			var tmp_range = null;
 			var offset = 0;
 
-			if ( ! sel.rangeCount ) 
-		 		{
+			if ( ! sel.rangeCount ) {
 				ddt.error( "_getObjectRange(): NO RANGE. UNABLE TO MOVE CARET." );
 
 				return;
-				}
+			}
 
 			// ------------------------ BEFORE OBJECT ----------------------------------------
 
@@ -4409,8 +4123,7 @@ if ( typeof( ddt ) == 'undefined' )
 
 			// is there a node? 
 
-			if ( dom_node.previousSibling == null )
-				{
+			if ( dom_node.previousSibling == null ) {
 
 				ddt.log( "_getObjectRange(): BEFORE: No sibling node to the left" );
 
@@ -4424,9 +4137,7 @@ if ( typeof( ddt ) == 'undefined' )
 
 				range.setStart( textnode, 0 );
 
-				}
-			else if ( dom_node.previousSibling.nodeType != 3 )
-				{
+			} else if ( dom_node.previousSibling.nodeType != 3 ) {
 
 				// this is probably due to the browser adding some markup by itself. 
 
@@ -4436,9 +4147,7 @@ if ( typeof( ddt ) == 'undefined' )
 
 				range.setStart( textnode, 0 );
 
-				}
-			else if ( dom_node.previousSibling.nodeValue == null )
-				{
+			} else if ( dom_node.previousSibling.nodeValue == null ) {
 
 				// this shouldn't happen, no? 
 
@@ -4448,9 +4157,7 @@ if ( typeof( ddt ) == 'undefined' )
 
 				range.setStart( textnode, 0 );
 
-				}
-			else if ( dom_node.previousSibling.nodeValue.length == 0 )
-				{
+			} else if ( dom_node.previousSibling.nodeValue.length == 0 ) {
 
 				// this shouldn't happen, no?
 
@@ -4460,9 +4167,7 @@ if ( typeof( ddt ) == 'undefined' )
 
 				range.setStart( textnode, 0 );
 
-				}
-			else 
-				{
+			} else {
 
 				// we have a text node with some content. This makes the area before the object 
 				// selectable. 
@@ -4471,7 +4176,7 @@ if ( typeof( ddt ) == 'undefined' )
 
 				range.setStart( dom_node.previousSibling, dom_node.previousSibling.nodeValue.length );
 
-				}	// end of else we had a textnode containing characters.
+			} // end of else we had a textnode containing characters.
 
 			// ------------------------- AFTER OBJECT -----------------------------------
 
@@ -4479,8 +4184,7 @@ if ( typeof( ddt ) == 'undefined' )
 
 			// is there a node? 
 
-			if ( dom_node.nextSibling == null )
-				{
+			if ( dom_node.nextSibling == null ) {
 
 				ddt.log( "_getObjectRange(): AFTER: No sibling node to the right" );
 
@@ -4494,9 +4198,7 @@ if ( typeof( ddt ) == 'undefined' )
 
 				range.setEnd( textnode, 1 );
 
-				}                      
-			else if ( dom_node.nextSibling.nodeType != 3 )
-				{
+			} else if ( dom_node.nextSibling.nodeType != 3 ) {
 
 				// this is probably due to the browser adding some markup by itself. 
 
@@ -4506,9 +4208,7 @@ if ( typeof( ddt ) == 'undefined' )
 
 				range.setEnd( textnode, 1 );
 
-				}
-			else if ( dom_node.nextSibling.nodeValue == null )
-				{
+			} else if ( dom_node.nextSibling.nodeValue == null ) {
 
 				// this shouldn't happen, no? 
 
@@ -4518,9 +4218,7 @@ if ( typeof( ddt ) == 'undefined' )
 
 				range.setEnd( textnode, 1 );
 
-				}
-			else if ( dom_node.nextSibling.nodeValue.length == 0 )
-				{
+			} else if ( dom_node.nextSibling.nodeValue.length == 0 ) {
 
 				// this shouldn't happen, no?
 
@@ -4530,9 +4228,7 @@ if ( typeof( ddt ) == 'undefined' )
 
 				range.setEnd( textnode, 1 );
 
-				}
-			else 
-				{
+			} else {
 
 				// we have a text node with some content.
 
@@ -4550,21 +4246,18 @@ if ( typeof( ddt ) == 'undefined' )
 				// both browsers. Yes, this polutes a bunch of extra characters but the user gets the behavior
 				// they would expect.
 
-				if ( dom_node.nextSibling.nodeValue != '\u200B' )
-					{
+				if ( dom_node.nextSibling.nodeValue != '\u200B' ) {
 					var textnode = this._insertEmptyNode( dom_node, 'after' );
 					range.setEnd( textnode, 1 );
-					}
-				else
-					{
+				} else {
 					range.setEnd( dom_node.nextSibling, 1 );
-					}
+				}
 
-				}	// end of else we had a textnode containing characters.
+			} // end of else we had a textnode containing characters.
 
 			return range;
 
-			},	// end of _getObjectRange()
+		}, // end of _getObjectRange()
 
 		/**
 		* returns the caret position in the DOM
@@ -4581,8 +4274,7 @@ if ( typeof( ddt ) == 'undefined' )
 		* @return {Object|Boolean} position with keys dom_node and offset or FALSE if not a collapsed range.
 		*/
 
-		_getCaretPosition: function()
-			{
+		_getCaretPosition: function() {
 
 			var dom_node = null;
 			var text_node = null;
@@ -4595,20 +4287,17 @@ if ( typeof( ddt ) == 'undefined' )
 			try {
 				var range = RANGE_HANDLER.getSelection().getRangeAt(0);
 
-				}
-			catch( err )
-				{
+			} catch( err ) {
 				ddt.log( "_getCaretPosition(): unable to get position " + err );
 				return false;
-				}
+			}
 
 			ddt.log( "_getCaretPosition(): top" );
 
-			if ( range.collapsed == false )
-				{
+			if ( range.collapsed == false ) {
 				ddt.log( "_getCaretPosition(): multi-char selection" );
 				return false;
-				}
+			}
 
 			dom_node = range.startContainer;
 
@@ -4626,27 +4315,25 @@ if ( typeof( ddt ) == 'undefined' )
 
 			// ddt.log( "_getCaretPosition(): checking to see if this node is or is inside an embedded object :", dom_node );
 
-			if ( embedded_object = this._isEmbeddedObject( dom_node ) )
-				{
+			if ( embedded_object = this._isEmbeddedObject( dom_node ) ) {
 
 				ddt.log( "_getCaretPosition(): we have an embedded object" );
 
 				return { dom_node: embedded_object, offset: -1 };
 
-				}	// end of if we were inside an embedded object.
+			} // end of if we were inside an embedded object.
 
 			// ddt.log( "_getCaretPosition(): not an embedded object" );
 
 			// do we have a text node?
 			
-			if ( dom_node.nodeType == 3 )
-				{
+			if ( dom_node.nodeType == 3 ) {
 
 				// ddt.log( "_getCaretPosition(): we have a text node of length '" + dom_node.nodeValue.length + "' startOffset '" + range.startOffset + "'" );
 
 				return { dom_node: dom_node, offset: range.startOffset };
 
-				}
+			}
 
 			// If the node is a container, we need to use the offset to get the current element in the
 			// container (which should NOT be a text node). This can happen if:
@@ -4657,15 +4344,13 @@ if ( typeof( ddt ) == 'undefined' )
 
 			if (( $( dom_node ).attr( 'id' ) == this.element.attr( 'id' ) ) ||
 				( dom_node.nodeName == 'DIV' ) ||
-				( dom_node.nodeName == 'P' ))
-				{
+				( dom_node.nodeName == 'P' )) {
 
 				ddt.log( "_getCaretPosition(): Got a container (DIV/P) as a parent. We are possibly next to a BR or at the end. startOffset is '" + range.startOffset + "'" );
 
 				// This should not occur, but have been encountered an empty container? 
 
-				if ( dom_node.childNodes.length == 0 )
-					{
+				if ( dom_node.childNodes.length == 0 ) {
 
 					ddt.log( "_getCaretPosition(): EMPTY CONTAINER! Adding empty text node." );
 
@@ -4675,14 +4360,13 @@ if ( typeof( ddt ) == 'undefined' )
 
 					return { dom_node: text_node, offset: 0 };
 
-					}	// end of if we had an empty container.
+				} // end of if we had an empty container.
 
 				// are we at the end of the container? It's possible to get a startOffset that is past the
 				// range of childNodes meaning we are at the end of a container. In WebKit browsers this is
 				// "unselectable no-man's land"
 
-				if ( range.startOffset >= dom_node.childNodes.length )
-					{
+				if ( range.startOffset >= dom_node.childNodes.length ) {
 
 					ddt.log( "_getCaretPosition(): We are at the end of a container which is unselectable in webKit browsers" );
 
@@ -4694,7 +4378,7 @@ if ( typeof( ddt ) == 'undefined' )
 
 					return { dom_node: text_node, offset: 1 };
 
-					}	// end of if we were at the end of a container.
+				} // end of if we were at the end of a container.
 
 				dom_node = dom_node.childNodes[ range.startOffset ];
 
@@ -4703,8 +4387,7 @@ if ( typeof( ddt ) == 'undefined' )
 				// this should never be a textnode, correct? If it's a textnode then it should have been
 				// returned as the container.
 
-				if ( dom_node.nodeType == 3 )
-					{
+				if ( dom_node.nodeType == 3 ) {
 
 					// FIXME: If this happens we don't know where in the node to position the caret. 
 
@@ -4714,15 +4397,15 @@ if ( typeof( ddt ) == 'undefined' )
 
 					return { dom_node: dom_node, offset: 0 };
 
-					}
+				}
 
-				}	// end of if we had a container.
+			} // end of if we had a container.
 
 			// this should never be a text node, correct?
 
 			return { dom_node: dom_node, offset: -1 };
 
-			},	// end of _getCaretPosition()
+		}, // end of _getCaretPosition()
 
 		/**
 		* inserts an HTML node replacing the current trigger word.
@@ -4756,8 +4439,7 @@ if ( typeof( ddt ) == 'undefined' )
 		* @see http://stackoverflow.com/questions/14098303/how-to-set-caret-cursor-position-in-a-contenteditable-div-between-two-divs
 		*/
 		 
-		_insertSelection: function( trigger, selection )
-			{
+		_insertSelection: function( trigger, selection ) {
 
 			ddt.log( "_insertSelection(): deleting trigger word based on trigger: ", trigger, " with currentRange ", this.currentRange );
 
@@ -4773,7 +4455,7 @@ if ( typeof( ddt ) == 'undefined' )
 
 			this.selectionEntered = true;
 
-			},	// end of _insertSelection()
+		}, // end of _insertSelection()
 
 		/**
 		* replace a word with some html content.
@@ -4786,8 +4468,7 @@ if ( typeof( ddt ) == 'undefined' )
 		* @param {String} data_value data value to tag inserted html with
 		*/
 
-		replaceWord: function( word_entry, content, data_value )
-			{
+		replaceWord: function( word_entry, content, data_value ) {
 
 			var sel = RANGE_HANDLER.getSelection();
 			var range = CREATERANGE_HANDLER.createRange();
@@ -4816,7 +4497,7 @@ if ( typeof( ddt ) == 'undefined' )
 
 			this.insertObject( content, data_value );
 
-			}, 
+		}, 
 
 		/**
 		* inserts a textnode with a single zero-width space character.
@@ -4832,18 +4513,15 @@ if ( typeof( ddt ) == 'undefined' )
 		* @todo add checking for presence of an existing empty text node.
 		*/
 
-		_insertEmptyNode: function( dom_node, direction, force )
-			{
+		_insertEmptyNode: function( dom_node, direction, force ) {
 
-			if ( typeof( force ) == 'undefined' )
-				{
+			if ( typeof( force ) == 'undefined' ) {
 				force = false;
-				}
+			}
 
 			var text_node = document.createTextNode( '\u200B' );
 
-			switch ( direction )
-				{
+			switch ( direction ) {
 
 				case 'before':
 
@@ -4852,56 +4530,53 @@ if ( typeof( ddt ) == 'undefined' )
 					if (( ! force ) &&
 						( dom_node.previousSibling != null ) && 
 						( dom_node.previousSibling.nodeType == 3 ) &&
-						( dom_node.previousSibling.nodeValue.length > 0 ))
-						{
+						( dom_node.previousSibling.nodeValue.length > 0 )) {
 						ddt.log( "_insertEmptyNode(): there's already a text node before this node" );
 						return dom_node.previousSibling;
-						}
+					}
 
 					$( text_node ).insertBefore( dom_node );
 
-					break;
+				break;
 
 				case 'after':
 
 					if (( ! force ) &&
 						( dom_node.nextSibling != null ) && 
 						( dom_node.nextSibling.nodeType == 3 ) &&
-						( dom_node.nextSibling.nodeValue.length > 0 ))
-						{
+						( dom_node.nextSibling.nodeValue.length > 0 )) {
 						ddt.log( "_insertEmptyNode(): there's already a text node after this node" );
 		 				return dom_node.nextSibling;
-						}
+					}
 
 					$( text_node ).insertAfter( dom_node );
 
-					break;
+				break;
 
 				case 'child':
 
 					// is the last child of this node already a text node?
 
-					if (( dom_node.childNodes.length != 0 ) && ( dom_node.childNodes[ dom_node.childNodes.length - 1 ].nodeType == 3 ))
-						{
+					if (( dom_node.childNodes.length != 0 ) && ( dom_node.childNodes[ dom_node.childNodes.length - 1 ].nodeType == 3 )) {
 						ddt.log( "_insertEmptyNode(): there's already a text node at the end of this container." );
 						return dom_node.childNodes[ dom_node.childNodes.length - 1 ];
-						}
+					}
 
 					$( text_node ).appendTo( dom_node );
 
-					break;
+				break;
 
 				default:
 
 					ddt.error( "_insertEmptyNode(): Invalid direction supplied '" + direction + "'" );
 
-					break;
+				break;
 
-				}
+			}
 
 			return text_node;
 
-			},
+		},
 
 		/**
 		* checks a sibling to ensure both sides are selectable.
@@ -4919,35 +4594,29 @@ if ( typeof( ddt ) == 'undefined' )
 		*
 		*/
 
-		_checkSibling: function( dom_node, direction )
-			{
+		_checkSibling: function( dom_node, direction ) {
 
 			var sibling = null;
 
 			ddt.log( "_checkSibling(): dom_node is :", dom_node );
 
-			if ( direction == 'prev' )
-				{
+			if ( direction == 'prev' ) {
 				sibling = dom_node.previousSibling;
-				}
-			else
-				{
+			} else {
 				sibling = dom_node.nextSibling;
-				}
+			}
 
 			ddt.log( "_checkSibling(): sibling is :", sibling );
 
 			// are we at the beginning or end of a container? 
 
-			if ( sibling == null ) 
-				{
+			if ( sibling == null ) {
 				ddt.log( "_checkSibling(): sibling is null." );
 
 				return;
-				}
+			}
 			
-			if ( this._isEmbeddedObject( sibling ) )
-				{
+			if ( this._isEmbeddedObject( sibling ) ) {
 
 				ddt.log( "_checkSibling(): object sibling" );
 
@@ -4957,12 +4626,11 @@ if ( typeof( ddt ) == 'undefined' )
 				this._insertEmptyNode( sibling, 'after' );
 
 				return;
-				}
+			}
 
 			// it might be a BR
 
-			if ( sibling.nodeName == 'BR' )
-				{
+			if ( sibling.nodeName == 'BR' ) {
 
 				ddt.log( "_checkSibling(): sibling is a BR" );
 
@@ -4972,23 +4640,21 @@ if ( typeof( ddt ) == 'undefined' )
 				this._insertEmptyNode( sibling, 'after' );
 
 				return;
-				}
+			}
 
 			// is it not a container?
 
 			if (( sibling.nodeName != 'SPAN' ) && 
 				( sibling.nodeName != 'DIV' ) &&
-				( sibling.nodeName != 'P' ))
-				{
+				( sibling.nodeName != 'P' )) {
 				ddt.log( "_checkSibling(): sibling is not a container: '" + sibling.nodeName + "'" );
 
 				return;
-				}
+			}
 
 			// is it an empty container? 
 
-			if ( sibling.childNodes.length == 0 )
-				{
+			if ( sibling.childNodes.length == 0 ) {
 
 				ddt.log( "_checkSibling(): empty container. adding textnode" );
 
@@ -4996,12 +4662,11 @@ if ( typeof( ddt ) == 'undefined' )
 
 				return;
 
-				}
+			}
 
 			// does it just container a BR? (WebKit)
 
-			if (( sibling.childNodes.length == 1 ) && ( sibling.childNodes[ 0 ].nodeName == 'BR' ))
-				{
+			if (( sibling.childNodes.length == 1 ) && ( sibling.childNodes[ 0 ].nodeName == 'BR' )) {
 
 				ddt.log( "_checkSibling(): DIV containing just a BR found. Adding a zero width char." );
 
@@ -5012,8 +4677,7 @@ if ( typeof( ddt ) == 'undefined' )
 				$( tmp_node ).remove()
 				
 				return;
-
-				}
+			}
 
 			// we have a container and it has child nodes. Insert textnodes at the beginning
 			// and end.
@@ -5023,7 +4687,7 @@ if ( typeof( ddt ) == 'undefined' )
 
 			return;
 
-			},	// end of _checkSibling()
+		}, // end of _checkSibling()
 
 		/**
 		* determines if the given node is an embedded object (or inside of one)
@@ -5036,23 +4700,20 @@ if ( typeof( ddt ) == 'undefined' )
 		* @return {Node|Boolean} dom_node of embedded object or null if not an embedded object
 		*/
 
-		_isEmbeddedObject: function( dom_node )
-			{
+		_isEmbeddedObject: function( dom_node ) {
 
 			var embedded_object = null;
 
-			if ( dom_node == null )
-				{
+			if ( dom_node == null ) {
 				ddt.log( "_isEmbeddedObject(): NULL node passsed in" );
 				return false;
-				}
+			}
 
 			// ddt.log( "_isEmbeddedObject(): inspecting node :", dom_node );
 
-			if ( $( dom_node ).attr( 'data-value' ) != null )
-				{
+			if ( $( dom_node ).attr( 'data-value' ) != null ) {
 				return dom_node;
-				}
+			}
 
 			// ddt.log( "_isEmbeddedObject(): not a TOP LEVEL embedded object node. Is one of our parents?" );
 
@@ -5060,7 +4721,7 @@ if ( typeof( ddt ) == 'undefined' )
 
 			return $( dom_node ).parents( '[data-value]' ).get(0);
 
-			},	// end of _isEmbeddedObject()
+		}, // end of _isEmbeddedObject()
 
 		/**
 		* insert an object at the current caret position
@@ -5079,8 +4740,7 @@ if ( typeof( ddt ) == 'undefined' )
 		* @see _saveRange()
 		*/
 
-		insertObject: function( content, value )
-			{
+		insertObject: function( content, value ) {
 
 			ddt.log( "insertObject(): top with content '" + content + "' and value '" + value + "'" );
 
@@ -5095,8 +4755,7 @@ if ( typeof( ddt ) == 'undefined' )
 			// each keypress. However, we also need to take into the account
 			// that the user may not have clicked in the editable div at all.
 
-			if ( this.currentRange === false )
-				{
+			if ( this.currentRange === false ) {
 
 				ddt.log( "insertObject(): currentRange is false" );
 
@@ -5109,7 +4768,7 @@ if ( typeof( ddt ) == 'undefined' )
 				// _selectTextNode() calls _saveRange() which affects currentRange. 
 				// I know, ugly side-effect.
 
-				}
+			}
 
 			var sel = RANGE_HANDLER.getSelection();
 			var range = this.currentRange;
@@ -5203,7 +4862,7 @@ if ( typeof( ddt ) == 'undefined' )
 
 			this._selectTextNode( textnode2, 1 );
 
-			},	// end of insertObject()
+		}, // end of insertObject()
 
 		/**
 		* returns plain text contents of the editable area with BR's turned to newlines.
@@ -5222,8 +4881,7 @@ if ( typeof( ddt ) == 'undefined' )
 		* @return string plaintext of content editable div.
 		*/
 
-		getTextContent: function()
-			{
+		getTextContent: function() {
 
 			ddt.log( "getTextContent(): top" );
 
@@ -5237,15 +4895,14 @@ if ( typeof( ddt ) == 'undefined' )
 
 			content = content.replace( /[\u200B]/gm, '' );
 
-			if ( content.match( /[\u200B]/ ) != null )
-				{
+			if ( content.match( /[\u200B]/ ) != null ) {
 				ddt.error( "getTextContent(): zero width chars in content" );
-				}
+			}
 
 			ddt.log( "getTextcontent(): content length after replace is: '" + content.length + "'" );
 
 			return content;
-			},
+		},
 
 		/**
 		* private method for recursing through div child elements.
@@ -5256,8 +4913,7 @@ if ( typeof( ddt ) == 'undefined' )
 		* @see _handleEnter()
 		*/
 
-		_getTextWithLineBreaks: function( elems )
-			{
+		_getTextWithLineBreaks: function( elems ) {
 
 			// list of elements used by various browsers to 
 			// mark newlines in a contenteditable section.
@@ -5269,24 +4925,21 @@ if ( typeof( ddt ) == 'undefined' )
 
 			ddt.log( "elems ", elems );
 
-			for ( var i = 0; elems[i]; i++ )
-				{
+			for ( var i = 0; elems[i]; i++ ) {
 
 				elem = elems[i];
 
 				ddt.log( "elem is '" + elem.nodeName + "'" );
 
-				if ( this._isEmbeddedObject( elem ) )
-					{
+				if ( this._isEmbeddedObject( elem ) ) {
 
 					ddt.log( "embedded object found" );
 					text_string += "[o=" + $( elem ).attr( 'data-value' ) + "]";
 
 					continue;
-					}
+				}
 
-				if (( elem.nodeType == 3 ) || ( elem.nodeType == 4 ))
-					{
+				if (( elem.nodeType == 3 ) || ( elem.nodeType == 4 )) {
 
 					ddt.log( "text or cdata found" );
 
@@ -5298,28 +4951,25 @@ if ( typeof( ddt ) == 'undefined' )
 
 					text_string += elem.nodeValue.replace( /[\n]/gm, '' );
 
-					}
-				else if ( jQuery.inArray( elem.nodeName, break_tags ) != -1 )
-					{
+				} else if ( jQuery.inArray( elem.nodeName, break_tags ) != -1 ) {
 
 					ddt.log( "break_tag found, adding newline" );
 					text_string += "\n";
-					}
-				else
-					{
+				} else {
 					ddt.log( "other" );
-					}
-
-				if ( elem.nodeType !== 8 ) // comment node
-					{
-					text_string += this._getTextWithLineBreaks( elem.childNodes );
-					}
-
 				}
+
+				// comment node.
+
+				if ( elem.nodeType !== 8 ) {
+					text_string += this._getTextWithLineBreaks( elem.childNodes );
+				}
+
+			}
 
 			return text_string;
 
-			},	// end of getTextWithLineBreaks()
+		}, // end of getTextWithLineBreaks()
 
 		/**
 		* clears the content of the editable div.
@@ -5327,13 +4977,12 @@ if ( typeof( ddt ) == 'undefined' )
 		* Typically used after submit, clears the content of the editable div.
 		*/
 
-		clear: function()
-			{
+		clear: function() {
 
 			ddt.log( "in clear" );
 
 			this.element.empty();
-			},
+		},
 
 		/**
 		* focuses the rich_textarea
@@ -5343,8 +4992,7 @@ if ( typeof( ddt ) == 'undefined' )
 		* @todo this is broken. scoping.
 		*/
 
-		focus: function()
-			{
+		focus: function() {
 
 			var sel = RANGE_HANDLER.getSelection();
 			var range = CREATERANGE_HANDLER.createRange();
@@ -5353,7 +5001,7 @@ if ( typeof( ddt ) == 'undefined' )
 
 			this.element.focus();
 
-			},
+		},
 
 		/**
 		* sets the supported emoticons list
@@ -5378,3 +5026,5 @@ if ( typeof( ddt ) == 'undefined' )
 	    });	// end of $.widget() parameter list.
 
 	})(jQuery);
+
+// END

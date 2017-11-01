@@ -216,6 +216,7 @@ if ( typeof( ddt ) == 'undefined' ) {
 				keydown: function( event ) { this._onKeyDown( event ); },
 				mouseup: function( event ) { this._onMouseUp( event ); },
 				focus: function( event ) { this._onFocus( event ); },
+				blur: function( event ) { this._onBlur( event ); },
 				paste: function( event ) { this._onPaste( event ); },
 				prepaste: function( event ) { this._onPrePaste( event ); },
 				postpaste: function( event ) { this._onPostPaste( event ); }
@@ -967,7 +968,9 @@ if ( typeof( ddt ) == 'undefined' ) {
 
 		_onFocus: function( event ) {
 
-			ddt.log( "focus(): top" );
+			ddt.log( "focus(): top. Triggering bubble focus." );
+
+			$( this.element ).trigger( 'bubblefocus' );
 
 			if ( this.autocomplete_open ) {
 
@@ -975,6 +978,17 @@ if ( typeof( ddt ) == 'undefined' ) {
 				event.preventDefault();
 				return false;
 			}
+		},
+
+		/**
+		* handle blur event
+		*/
+
+		_onBlur: function( event ) {
+			ddt.log( "_onBlur(): top. Triggering bubble blur." );
+
+			$( this.element ).trigger( 'bubbleblur' );
+
 		},
 
 		/**

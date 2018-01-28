@@ -1967,7 +1967,16 @@ if ( typeof( ddt ) == 'undefined' ) {
 
 			ddt.log( "_checkRegexes(): with event: ", event );
 
-			caret = this._getCaretPosition();
+			caret = this._getCaretPosition(); 
+
+			// checking to see if some content that was just entered only makes sense
+			// when typing or on paste. If we have arrived here because the user selected
+			// a block of text we just return.
+
+			if ( ! caret ) {
+				ddt.log( "_checkRegexes(): we have an uncollapsed range. Returning." );
+				return false;
+			}
 
 			if ( caret.offset == -1 ) {
 
@@ -1983,7 +1992,8 @@ if ( typeof( ddt ) == 'undefined' ) {
 				return false;
 			}
 
-			ddt.log( "_checkRegexes(): current caret position is " + caret.offset + " carete is :'", caret );
+			ddt.log( "_checkRegexes(): current caret position is " + caret.offset + " caret is :'", caret );
+
 			// ddt.log( "_checkRegexes(): current caret position is " + caret.offset + " value is '" + caret.dom_node.nodeValue.charAt( caret.offset - 1 ) + "'" );
 
 			if ( event.type =='keyup' ) {

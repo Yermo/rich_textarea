@@ -125,6 +125,14 @@ if ( typeof( ddt ) == 'undefined' ) {
 		options: {
 
 			/**
+			* placeholder text.
+			*
+			* placeholder text to display in an empty rich_textarea until the user enters something in the box.
+			*/
+
+			placeholder: '',
+
+			/**
 			* definition of autocomplete triggers.
 			*
 			* an array of trigger definitions each containing keys:
@@ -206,6 +214,17 @@ if ( typeof( ddt ) == 'undefined' ) {
 			*/
 
 			// this.element.focus();
+
+			/**
+			* if we have a placeholder and we have no content, add the placeholder.
+			*/
+
+			this.placeholderVisible = false;
+
+			if (( this.element.html() == '' ) && ( typeof this.options.placeholder != '' )) {
+				this.element.html( '<span style="color: gray">' + this.options.placeholder + '</span>' );
+				this.placeholderVisible = true;
+			}
 
 			// widget factory style event binding. First is the name of the 
 			// event mapped onto the string name of the method to call.
@@ -709,7 +728,7 @@ if ( typeof( ddt ) == 'undefined' ) {
 
 					// on pressing SPACE check to see if we match any regexes.
 
-					ddt.log( "_onKeyDown(): SPACE pressed. Checking regexes" );
+					ddt.log( "_onKeyPress(): SPACE pressed. Checking regexes" );
 
 					this._checkRegexes( event );
 
@@ -721,7 +740,7 @@ if ( typeof( ddt ) == 'undefined' ) {
 					// dropdown. The dropdown catches the keypress event for ENTER but does not, for 
 					// whatever reason, stop propagation so we get that keypress here. 
 
-					ddt.log( "_onKeyDown(): ENTER pressed. Checking regexes" );
+					ddt.log( "_onKeyPress(): ENTER pressed. Checking regexes" );
 
 					this._checkRegexes( event );
 
@@ -970,6 +989,19 @@ if ( typeof( ddt ) == 'undefined' ) {
 
 			ddt.log( "focus(): top. Triggering bubble focus." );
 
+			// do we have a placeholder?
+
+			if ( this.placeholderVisible ) {
+				this.placeholderVisible = false;
+				this.element.html( '' );
+
+				// avoid blank unfocused input div.
+
+				var textnode = this._insertEmptyNode( this.element.get(0), 'child' );
+				this._selectTextNode( textnode, 1 );
+
+			}
+				
 			$( this.element ).trigger( 'bubblefocus' );
 
 			if ( this.autocomplete_open ) {
@@ -1598,6 +1630,13 @@ if ( typeof( ddt ) == 'undefined' ) {
 				return;
 			}
 
+			// if we hit enter after a regex hit, don't process the enter.
+
+			if ( this._checkRegexes( event ) ) {
+                        	event.preventDefault();
+				return;
+			}
+
 			// we insert a <BR> where the cursor currently is. It may, however, be inside a text node
 			// which means the text node needs to be split.
 
@@ -1887,6 +1926,16 @@ if ( typeof( ddt ) == 'undefined' ) {
 		}, // end of _checkForTrigger()
 
 		/**
+		* public interface for checkRegexes
+		*
+		* @todo rename this. Primarily used in add urls/videos
+		*/
+
+		checkRegexes: function( event ) {
+			return this._checkRegexes( event )
+		},
+
+		/**
 		* check for regex match
 		*
 		* An array of regex's may be defined that will invoke a callback if a matching pattern is 
@@ -1905,6 +1954,8 @@ if ( typeof( ddt ) == 'undefined' ) {
 		* select an item from the dropdown, the regex callback will be run. 
 		*
 		* @param {Event} event 
+		*
+		* @return true if a regex callback was invoked. false otherwise.
 		*
 		* @see regexes
 		*/
@@ -1925,7 +1976,15 @@ if ( typeof( ddt ) == 'undefined' ) {
 				return false;
 			}
 
-			ddt.log( "_checkRegexes(): current caret position is " + caret.offset + " value is '" + caret.dom_node.nodeValue.charAt( caret.offset - 1 ) + "'" );
+			// if the are is empty no point in doing the check.
+
+			if (( this.element.html() == '' ) || ( this.placeholderVisible )) {
+				ddt.log( "_checkRegexes(): no content" );
+				return false;
+			}
+
+			ddt.log( "_checkRegexes(): current caret position is " + caret.offset + " carete is :'", caret );
+			// ddt.log( "_checkRegexes(): current caret position is " + caret.offset + " value is '" + caret.dom_node.nodeValue.charAt( caret.offset - 1 ) + "'" );
 
 			if ( event.type =='keyup' ) {
 
@@ -1964,11 +2023,15 @@ if ( typeof( ddt ) == 'undefined' ) {
 
 						this.options.regexes[i].callback( word_entry );
 
+						return true;
+
 					}
 
 				}
 
 			}	// end of if we got a word.
+
+			return false;
 
 		}, // end of _checkRegexes()
 

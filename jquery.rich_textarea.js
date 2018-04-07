@@ -992,14 +992,7 @@ if ( typeof( ddt ) == 'undefined' ) {
 			// do we have a placeholder?
 
 			if ( this.placeholderVisible ) {
-				this.placeholderVisible = false;
-				this.element.html( '' );
-
-				// avoid blank unfocused input div.
-
-				var textnode = this._insertEmptyNode( this.element.get(0), 'child' );
-				this._selectTextNode( textnode, 1 );
-
+				this._clearPlaceholder();
 			}
 				
 			$( this.element ).trigger( 'bubblefocus' );
@@ -1965,7 +1958,7 @@ if ( typeof( ddt ) == 'undefined' ) {
 			var caret = null;
 			var word_entry = null;
 
-			ddt.log( "_checkRegexes(): with event: ", event );
+			ddt.log( "_checkRegexes(): on rich textarea with id '" + $( this.element ).attr( 'id' ) + "' with event: ", event );
 
 			caret = this._getCaretPosition(); 
 
@@ -2074,7 +2067,10 @@ if ( typeof( ddt ) == 'undefined' ) {
 
 			var mode = 'looking_for_trigger';
 			var trigger_entry = null;
-			var loop_brake = 200;
+
+			// longest practical limit for a URL is 2000 characters.
+
+			var loop_brake = 2000;
 
 			// used to remember where the trigger start character is.
 
@@ -2264,7 +2260,7 @@ if ( typeof( ddt ) == 'undefined' ) {
 
 		_getWordEnd: function( word_entry ) {
 			
-			var loop_brake = 200;
+			var loop_brake = 2000;
 			var word = '';
 
 			ddt.log( "_getWordEnd(): top with word_entry :", word_entry );
@@ -2415,7 +2411,7 @@ if ( typeof( ddt ) == 'undefined' ) {
 
 		_getWord: function( dom_node, caret_position ) {
 
-			var loop_brake = 200;
+			var loop_brake = 2000;
 
 			// used to return the word, and range.
 
@@ -3936,6 +3932,25 @@ if ( typeof( ddt ) == 'undefined' ) {
 		}, // end of _unHighlightObjects()
 
 		/**
+		* clear the placeholder
+		*/
+
+		_clearPlaceholder: function() {
+
+			if ( this.placeholderVisible ) {
+				this.placeholderVisible = false;
+				this.element.html( '' );
+
+				// avoid blank unfocused input div.
+
+				var textnode = this._insertEmptyNode( this.element.get(0), 'child' );
+				this._selectTextNode( textnode, 1 );
+
+			}
+
+		},
+
+		/**
 		* sets the caret to a position in a textnode
 		*
 		* @param {Object} text_node textnode being selected
@@ -4950,6 +4965,144 @@ if ( typeof( ddt ) == 'undefined' ) {
 			this._selectTextNode( textnode2, 1 );
 
 		}, // end of insertObject()
+
+		/**
+		* insert some content at the current caret position
+		*
+		* Inserts a block of HTML content. 
+		*
+		* The caret is positioned after the inserted object.
+		*
+		* @param {String} content HTML content to add.
+		*
+		* @return {Node} dom node of inserted object.
+		*
+		* @see _saveRange()
+		*/
+
+		insertContent: function( content ) {
+
+			var self = this;
+
+			ddt.log( "insertContent(): top with content '" + content + "'" );
+
+			this._clearPlaceholder();
+
+			// this method is often invoked from the 'outside' and as such the 
+			// editable div loses focus which messes up the works.
+
+			this.element.focus();
+
+			ddt.log( "insertContent(): after focus - currentRange is ", this.currentRange );
+
+			// we may have lost focus so restore the range we saved after
+			// each keypress. However, we also need to take into the account
+			// that the user may not have clicked in the editable div at all.
+
+			if ( this.currentRange === false ) {
+
+				ddt.log( "insertContent(): currentRange is false" );
+
+				// insert a blank text node in the div
+
+				var textnode = this._insertEmptyNode( this.element.get(0), 'child' );
+
+				this._selectTextNode( textnode, 1 );
+
+				// _selectTextNode() calls _saveRange() which affects currentRange. 
+				// I know, ugly side-effect.
+
+			}
+
+			var sel = RANGE_HANDLER.getSelection();
+			var range = this.currentRange;
+
+			sel.removeAllRanges();
+			sel.addRange( range );
+
+			var caret = null;
+
+			// for some reason for a range of content returned from the server
+			// this results in an expression error. 
+			//
+			// var node = $( content );
+			//
+			// Trim the content just in case we have a few whitespace characters leading or following.
+
+			var tempDiv = document.createElement('div');
+			tempDiv.innerHTML = content.replace(/^[\s\u200B]+|[\s\u200B]+$/g,"");
+
+			// make sure not to include the wrapping temporary div. 
+
+			node = $( tempDiv ).contents();
+
+			ddt.log( "insertContent(): node is ", node );
+
+//			FIXME: This breaks webkit browsers. If you press DELETE or backspace such that
+//			two lines are joined, the latter of which has a contenteditable=false item on it
+//			everything from the item to the end of the line will be unceremoniously deleted.
+//
+//			node.attr( 'contenteditable', 'false' );
+
+			// to avoid the mess that results when trying to get a range on the 
+			// empty/non-existent text node between two objects when they are placed next to 
+			// one another, we insert zero width space characters as needed. This 
+			// can then be selected in a range allowing us to move the cursor to the space
+			// between the objects, notably in WebKit browsers.
+			//
+			// Without some kind of character between the <div>'s, the selection will
+			// jump to the nearest inside one of the divs. (Which, if you think about it, makes
+			// sense from the perspective of a user at the keyboard. You don't want to have to 
+			// move the arrow key over invisible entities ...)
+			//
+			// The same problem occurs when an object is placed at the very beginning or very 
+			// end of the contenteditable div.
+			//
+			// Unfortunately, zero width space characters do take up a keyboard arrow press,
+			// i.e. if you arrow over such a character the cursor doesn't move but you have to 
+			// press the arrow key once for each such character which is confusing. This is
+			// addressed in the _onKeyDown() handler. We move the cursor over them.
+
+			// The approach is to add the object then check to see if we have sibling objects 
+			// before or after us. If not, we add them.
+
+			var dom_node = node.get(0);
+
+			range.insertNode( node.get(0) );
+			range.setStartAfter( node.get(0) );
+			range.collapse( true );
+
+			sel.removeAllRanges();
+			sel.addRange(range);
+
+			ddt.log( "insertContent(): previousSibling is : ", dom_node.previousSibling );
+
+			// check siblings before and after us, if any. 
+			//
+			// And, in Chome and possibly other browsers, if this is the first element there is, 
+			// an entirely empty text node is insert at the first position. 
+
+			ddt.log( "insertContent(): inserting zero width node before selection" );
+
+			// FIXME: Not sure why, but if I don't force the inclusion of empty nodes even if
+			// the object is surrounded by text nodes selections break. wtf? (i.e. without this
+			// inserting object into the middle of text lines fails in Webkit)
+
+			var textnode = this._insertEmptyNode( dom_node, 'before', true );
+
+//			this._selectTextNode( textnode, 1 );
+
+			// if there is no sibling after us or if it's not a text node, add a zero width space.
+
+			ddt.log( "insertContent(): inserting zero width node after selection" );
+
+		  	var textnode2 = this._insertEmptyNode( dom_node, 'after', true );
+
+			// FIXME: if this is 0, in Chrome it selects a point in the span.
+
+			this._selectTextNode( textnode2, 1 );
+
+		}, // end of insertContent()
 
 		/**
 		* returns plain text contents of the editable area with BR's turned to newlines.

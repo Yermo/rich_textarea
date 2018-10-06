@@ -1,4 +1,4 @@
-/**
+ /**
 * Copyright (c) 2014 Flying Brick Software, LLC (http://www.flyingbricksoftware.com)
 *
 * Permission  is  hereby  granted,  free of charge, to any person
@@ -5118,12 +5118,18 @@ if ( typeof( ddt ) == 'undefined' ) {
 		* public method, callable using $(..).rich_textarea( 'getTextWithLineBreaks' ), per 
 		* widget factory guidelines.
 		*
+		* Any placeholder text is ignored.
+		*
 		* @return string plaintext of content editable div.
 		*/
 
 		getTextContent: function() {
 
 			ddt.log( "getTextContent(): top" );
+
+			if ( this.placeholderVisible ) {
+				return '';
+			}
 
 			// this.element is a jQuery object.
 
